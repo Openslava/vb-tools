@@ -4,31 +4,7 @@ This directory contains scripts for setting up and configuring Windows Subsystem
 
 ## Quick Start
 
-```powershell
-# Navigate to the WSL scripts directory
-cd .\wsl\
-
-# List current WSL distributions
-wsl -l -v
-
-# Uninstall existing WSL distributions (if needed)
-wsl --unregister Ubuntu-22.04
-wsl --unregister OracleLinux_8_10
-
-# Install and configure OracleLinux_8_10 WSL distribution
-.\01_set_wsl.ps1
-
-# Install Ubuntu-22.04 Linux WSL distribution and set as default
-.\01_set_wsl.ps1 -distroName "Ubuntu-22.04" -setdefault
-
-# Manually configure DNS (if needed)
-wsl -d OracleLinux_8_10 -e sudo bash .\02_set_dns.sh --dns "192.168.1.1,8.8.8.8"
-
-# Check WSL status
-wsl -l -v
-wsl -d OracleLinux_8_10 -e cat /etc/resolv.conf
-```
-
+see `00_quick_start.ps1` for a quick setup guide.
 
 ## 01_set_wsl.ps1
 

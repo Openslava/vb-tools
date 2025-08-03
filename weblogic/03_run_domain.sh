@@ -2,6 +2,7 @@
 
 # WebLogic Domain Start Script - Simplified Version
 # This script starts a WebLogic domain
+echo "03_run_domain.sh - Starting WebLogic Domain"
 
 # Set environment variables
 export ORACLE_BASE="/opt/oracle"
@@ -21,12 +22,24 @@ else
     exit 1
 fi
 
-# Check if running as weblogic user
+# Check if running as weblogic user or if we can switch to weblogic
 if [ "$(id -un)" != "weblogic" ]; then
-    echo "Error: This script must be run as the weblogic user"
-    echo "Run: sudo su - weblogic"
-    exit 1
+    # Get absolute path of current script to avoid path issues
+    SCRIPT_PATH="$(readlink -f "$0")"
+    
+    # If running as root, try to switch to weblogic user
+    if [ "$EUID" -eq 0 ]; then
+        echo "Running as root, switching to weblogic user..."
+        exec su - weblogic -c "$SCRIPT_PATH $*"
+    else
+        echo "Error: This script must be run as the weblogic user or as root"
+        echo "Run: sudo su - weblogic -c '$SCRIPT_PATH $*'"
+        echo "Or: sudo $SCRIPT_PATH $*"
+        exit 1
+    fi
 fi
+
+echo "Running as weblogic user: $(id -un)"
 
 # Check if WebLogic is installed
 if [ ! -d "$WLS_HOME" ]; then
@@ -46,11 +59,23 @@ echo "Starting WebLogic domain: $DOMAIN_NAME"
 echo "Domain path: $DOMAIN_HOME/$DOMAIN_NAME"
 echo "Admin console will be available at: http://localhost:$ADMIN_PORT/console"
 
-# Check if server is already running
-if pgrep -f "weblogic.Server" > /dev/null; then
-    echo "WebLogic Server is already running"
-    echo "To stop it, run: pkill -f weblogic.Server"
+# Check if server is already running (idempotent)
+DOMAIN_PID=$(pgrep -f "Dweblogic.Name=AdminServer.*$DOMAIN_NAME" 2>/dev/null)
+if [ -n "$DOMAIN_PID" ]; then
+    echo "WebLogic AdminServer for domain '$DOMAIN_NAME' is already running (PID: $DOMAIN_PID)"
+    echo "Admin console: http://localhost:$ADMIN_PORT/console"
+    echo "To stop it, run: kill $DOMAIN_PID"
+    echo "Or use: $DOMAIN_HOME/$DOMAIN_NAME/bin/stopWebLogic.sh"
     exit 0
+fi
+
+# Check for any WebLogic processes
+if pgrep -f "weblogic.Server" > /dev/null; then
+    echo "Warning: Other WebLogic Server processes are running"
+    pgrep -f "weblogic.Server" | while read pid; do
+        echo "  PID $pid: $(ps -p $pid -o args --no-headers)"
+    done
+    echo ""
 fi
 
 # Start the WebLogic Server

@@ -4,26 +4,12 @@ A collection of shell scripts for managing Oracle WebLogic Server installations 
 
 ## quick start
 
-1. Install WebLogic
-```bash
-su - weblogic -c './01_set_weblogic.sh'
-```
-
-2. Create Domain
-```bash
-# Create domain with optional domain name
-su - weblogic -c './02_set_domain.sh [domain_name]'
-```
-
-3. Start Domain
-```bash
-su - weblogic -c './03_run_domain.sh [domain_name]'
-```
-
+see `00_quick_start.ps1` for a quick setup guide.
 
 ## Scripts Overview
 
 1. **01_set_weblogic.sh**
+   - Creates weblogic user if it doesn't exist
    - Installs and configures WebLogic Server
    - Sets up required environment variables
    - Prerequisites for domain creation
@@ -40,12 +26,13 @@ su - weblogic -c './03_run_domain.sh [domain_name]'
 
 ## Requirements
 
-- Linux/Unix environment
+- Linux/Unix environment (Oracle Linux WSL supported)
 - Oracle WebLogic Server installation media
 - JDK 8 or later installed at:
   - `/usr/java/latest` or
   - `/usr/lib/jvm/java-1.8.0`
-- `weblogic` user account with appropriate permissions
+- `weblogic` user account (will be created if doesn't exist)
+- Root/sudo access for initial user creation
 
 ## Directory Structure
 
@@ -62,7 +49,8 @@ weblogic/
 ### 1. Install WebLogic
 
 ```bash
-su - weblogic -c './01_set_weblogic.sh'
+# Run as root - creates weblogic user and installs WebLogic
+sudo ./01_set_weblogic.sh
 ```
 
 ### 2. Create Domain
