@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # WebLogic Domain Creation Script - Simplified Version
 # This script creates a WebLogic domain with basic configuration
@@ -11,7 +12,15 @@ export WLS_HOME="$ORACLE_HOME/wlserver"
 export DOMAIN_HOME="$ORACLE_HOME/user_projects/domains"
 export DOMAIN_NAME=${1:-"test_domain"}
 export PORT=${PORT:-7001}
-export ADMIN_USER=${ADMIN_USER:-"weblogic"}
+export ADMIN_USER=${ADMIN_USER:-"admin"}
+
+# Generate a secure random password if not provided
+if [ -z "$ADMIN_PASSWORD" ]; then
+    # Generate random password: 12 chars with uppercase, lowercase, numbers, and symbols
+    export ADMIN_PASSWORD=$(openssl rand -base64 12 | tr -d "=+/" | cut -c1-12)$(date +%N | cut -c1-6)
+    # Ensure it meets WebLogic password requirements (8+ chars, mix of case/numbers)
+    export ADMIN_PASSWORD="Wls${ADMIN_PASSWORD}!"
+fi
 
 # Find Java installation
 if [ -d "/usr/java/latest" ]; then
@@ -24,57 +33,33 @@ else
 fi
 
 # Check if running as root
-if [ "$EUID" -ne 0 ]; then 
-    echo "Please run as root or with sudo"
-    exit 1
-fi
+if [ "$EUID" -ne 0 ]; then  echo "Please run as root or with sudo";  exit 1; fi
 
 # Check if WebLogic is installed
-if [ ! -d "$WLS_HOME" ]; then
-    echo "Error: WebLogic installation not found at $WLS_HOME"
-    exit 1
-fi
+if [ ! -d "$WLS_HOME" ]; then echo "Error: WebLogic installation not found at $WLS_HOME"; exit 2; fi
 
-# Ensure weblogic user has proper permissions to Oracle directories (idempotent)
+# Ensure weblogic user has proper permissions to Oracle directories
 echo "Setting up permissions for weblogic user..."
 if [ -d "$ORACLE_BASE" ]; then
-    # Only change ownership if not already owned by weblogic
-    if [ "$(stat -c %U "$ORACLE_BASE")" != "weblogic" ]; then
-        echo "Setting ownership of $ORACLE_BASE to weblogic..."
-        chown -R weblogic:weblogic "$ORACLE_BASE"
-    else
-        echo "Oracle base already owned by weblogic user"
-    fi
-    
-    # Ensure proper permissions (always safe to run)
+    echo "Setting ownership of $ORACLE_BASE to weblogic..."
+    chown -R weblogic:weblogic "$ORACLE_BASE"
     chmod -R 755 "$ORACLE_BASE"
 else
     echo "Error: Oracle base directory $ORACLE_BASE not found"
     exit 1
 fi
 
-# Get admin password
-if [ -z "$ADMIN_PASSWORD" ]; then
-    echo -n "Enter WebLogic admin password: "
-    read -s ADMIN_PASSWORD
-    echo
-fi
-
-# Handle existing domain (idempotent)
+# Handle existing domain (force mode or idempotent behavior)
 if [ -d "$DOMAIN_HOME/$DOMAIN_NAME" ]; then
-    echo "Domain $DOMAIN_NAME already exists at $DOMAIN_HOME/$DOMAIN_NAME"
-    echo -n "Do you want to recreate it? [y/N]: "
-    read -r response
-    case "$response" in
-        [yY][eE][sS]|[yY]) 
-            echo "Removing existing domain $DOMAIN_NAME..."
-            rm -rf "$DOMAIN_HOME/$DOMAIN_NAME"
-            ;;
-        *) 
-            echo "Keeping existing domain. Exiting."
-            exit 0
-            ;;
-    esac
+    if [ "$FORCE_MODE" = "true" ]; then
+        echo "Force mode enabled - removing existing domain: $DOMAIN_HOME/$DOMAIN_NAME"
+        rm -rf "$DOMAIN_HOME/$DOMAIN_NAME"
+        echo "Existing domain removed, will recreate with new password"
+    else
+        echo "Domain $DOMAIN_NAME already exists at $DOMAIN_HOME/$DOMAIN_NAME"
+        echo "Skipping creation. To recreate: use -forse parameter or manually run: rm -rf '$DOMAIN_HOME/$DOMAIN_NAME'"
+        exit 0
+    fi
 fi
 
 echo "Creating WebLogic domain: $DOMAIN_NAME"
@@ -94,18 +79,36 @@ chmod -R 755 "$ORACLE_HOME/user_projects"
 
 # Create and run WLST script
 cat > /tmp/create_domain.py << EOF
+# WLST script to create WebLogic domain
+print('Creating domain with name: $DOMAIN_NAME')
+print('Using WebLogic admin user: $ADMIN_USER')
+print('Admin password length: ${#ADMIN_PASSWORD}')
+
 readTemplate('$WLS_HOME/common/templates/wls/wls.jar')
 setOption('DomainName', '$DOMAIN_NAME')
 setOption('ServerStartMode', 'prod')
 setOption('JavaHome', '$JAVA_HOME')
+
+# Set admin user password - note: this is the WebLogic admin user, not the Linux user
+# The default WebLogic admin user in the template is 'weblogic', but we want to use our admin user
 cd('/Security/base_domain/User/weblogic')
+set('Name', '$ADMIN_USER')
 cmo.setPassword('$ADMIN_PASSWORD')
+
+# Configure AdminServer
 cd('/Servers/AdminServer')
 set('ListenPort', $PORT)
-# Configure Node Manager (but not during domain creation)
+
+# Configure Node Manager
 setOption('NodeManagerType', 'PerDomainNodeManager')
+
+# Write domain
+print('Writing domain to: $DOMAIN_HOME/$DOMAIN_NAME')
 writeDomain('$DOMAIN_HOME/$DOMAIN_NAME')
 closeTemplate()
+
+print('Domain creation completed successfully')
+print('WebLogic admin user: $ADMIN_USER (runs as Linux user: weblogic)')
 exit()
 EOF
 
@@ -124,8 +127,16 @@ if [ -d "$DOMAIN_HOME/$DOMAIN_NAME" ]; then
     
     echo "Domain $DOMAIN_NAME created successfully!"
     echo "Domain location: $DOMAIN_HOME/$DOMAIN_NAME"
-    echo "Admin console: http://localhost:$PORT/console"
-    echo "To start: su - weblogic -c '$DOMAIN_HOME/$DOMAIN_NAME/bin/startWebLogic.sh'"
+    echo ""
+    echo "=== WebLogic Admin Console Access ==="
+    echo "URL: http://localhost:$PORT/console"
+    echo "Username: $ADMIN_USER"
+    echo "Password: $ADMIN_PASSWORD"
+    echo ""
+    echo "IMPORTANT: Save the password above - you'll need it to access the console!"
+    echo "Source environment: sudo su - weblogic -c 'source $DOMAIN_HOME/$DOMAIN_NAME/bin/setDomainEnv.sh'"
+    echo "To start: sudo su - weblogic -c '$DOMAIN_HOME/$DOMAIN_NAME/bin/startWebLogic.sh'"
+    echo "To stop:  sudo su - weblogic -c '$DOMAIN_HOME/$DOMAIN_NAME/bin/stopWebLogic.sh'"
 else
     echo "Error: Domain creation failed - domain directory not found"
     exit 1

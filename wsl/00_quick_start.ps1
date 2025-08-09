@@ -1,20 +1,32 @@
+<#
+.SYNOPSIS
+    Quick setup script for Windows Subsystem for Linux (WSL) with Oracle Linux distribution.
+
+.EXAMPLE
+    .\00_quick_start.ps1
+    Performs complete WSL setup with Oracle Linux 8.10 as default distribution.
+
+.NOTES
+    File Name      : 00_quick_start.ps1
+    Author         : Viliam Batka
+    Prerequisite   : Windows 10/11 with WSL feature available
+
+    Uninstall existing WSL distributions (if needed)
+    wsl --unregister OracleLinux_8_10
+#>
+[CmdletBinding()]
+param(
+    [string]$distroName = "OracleLinux_8_10",
+    [switch]$forse
+)
+
 # Get the directory where this script is located
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
-# selected distribution name
-$distroName = "OracleLinux_8_10"
+# Install (if missing) and configure the WSL distribution and make it default
+# On first launch, Windows may prompt to create a UNIX username/password for the distro.
+& "$scriptDir\01_set_wsl.ps1" -distroName $distroName -setdefault -forse:$forse
 
 # List current WSL distributions
-# Manually Check WSL status
 wsl -l -v
-
-# Uninstall existing WSL distributions (if needed)
-# wsl --unregister Ubuntu-22.04
-# wsl --unregister OracleLinux_8_10
-
-# Install and configure OracleLinux_8_10 WSL distribution and make it default
-# during execution first will be requested to set the default WSL user / password, in second step use this credentials to do sudo 
-& "$scriptDir\01_set_wsl.ps1" -distroName $distroName -setdefault
-
-# Manually configure DNS (if needed)
-# wsl -d $distroName -e sudo bash "$scriptDir\02_set_dns.sh" --dns "192.168.1.1,8.8.8.8"
+# end

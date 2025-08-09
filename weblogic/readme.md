@@ -2,147 +2,150 @@
 
 A collection of shell scripts for managing Oracle WebLogic Server installations and domains.
 
-## quick start
+## Quick Start - 3 Simple Steps
 
-see `00_quick_start.ps1` for a quick setup guide.
+### Step 1: Download Oracle Files
 
-## Scripts Overview
+Download and save to your Downloads folder:
 
-1. **01_set_weblogic.sh**
-   - Creates weblogic user if it doesn't exist
-   - Installs and configures WebLogic Server
-   - Sets up required environment variables
-   - Prerequisites for domain creation
+- **Oracle JDK 8u461** - [Download here](https://www.oracle.com/java/technologies/javase-jdk8-doc-downloads.html)
+- **WebLogic 12.2.1.4.0** - [Download here](https://www.oracle.com/qa/middleware/technologies/weblogic-server-downloads.html)
 
-2. **02_set_domain.sh**
-   - Creates and configures WebLogic domains
-   - Sets up domain-specific configurations
-   - Prepares the domain for first use
+### Step 2: Run Setup
 
-3. **03_run_domain.sh**
-   - Manages WebLogic domain lifecycle
-   - Starts/monitors the Admin Server
-   - Provides status and log monitoring
+```powershell
+# Basic setup with auto-generated password
+.\weblogic\00_quick_start.ps1
 
-## Requirements
+# Custom admin password
+.\weblogic\00_quick_start.ps1 -adminPassword "MySecurePassword123!"
 
-- Linux/Unix environment (Oracle Linux WSL supported)
-- Oracle WebLogic Server installation media
-- JDK 8 or later installed at:
-  - `/usr/java/latest` or
-  - `/usr/lib/jvm/java-1.8.0`
-- `weblogic` user account (will be created if doesn't exist)
-- Root/sudo access for initial user creation
-
-## Directory Structure
-
-```text
-weblogic/
-├── 01_set_weblogic.sh  # WebLogic installation script
-├── 02_set_domain.sh    # Domain creation script
-├── 03_run_domain.sh    # Domain management script
-└── readme.md          # This documentation
+# Full custom configuration
+.\weblogic\00_quick_start.ps1 -domainName "production" -adminPassword "SecurePass123!" -adminPort 7002
 ```
 
-## Usage
+┌─────────────────────────────────────┐
+│ Linux System Level                  │
+│ User: weblogic (owns files/processes)│
+└─────────────────────────────────────┘
+                  │
+                  │ runs
+                  ▼
+┌─────────────────────────────────────┐
+│ WebLogic Application Level          │
+│ Admin User: admin (console login)   │
+│ Password: testpwd1                   │
+└─────────────────────────────────────┘
 
-### 1. Install WebLogic
+### Step 3: Set WSL Password When Prompted
+
+During setup you'll be asked to set:
+
+1. **WSL Username/Password** (first time WSL runs) - remember these for sudo
+
+**WebLogic Admin Password** - either auto-generated or your custom password
+2. **WebLogic Admin Password** - automatically generated and displayed like: `WlsaBc7Xm2nQ47!`
+
+### You're Done! 🎉
+
+- **WebLogic Console**: <http://localhost:7001/console>
+- **Username**: admin
+- **Password**: The generated password shown during setup
+
+---
+
+## Password Details
+
+### WSL Password
+
+- Set during first WSL installation
+- Used for `sudo` commands
+- Choose something you'll remember
+
+### WebLogic Admin Password
+
+- **Command-line parameter**: Set via `-adminPassword "YourPassword123!"`
+- **Auto-generated**: Secure random password if not specified
+- Format: `Wls[RandomChars][Timestamp]!`
+- **SAVE THIS PASSWORD** - you need it for the admin console
+
+#### Examples
+
+```powershell
+# Use custom password
+.\weblogic\00_quick_start.ps1 -adminPassword "MySecurePassword123!"
+
+# Use auto-generated password (shown during setup)
+.\weblogic\00_quick_start.ps1
+
+# Environment variable approach
+$env:ADMIN_PASSWORD = "MyPassword123!"
+.\weblogic\00_quick_start.ps1
+```
+
+## Manual Setup (Advanced)
+
+If you prefer manual control or need custom configuration:
+
+### Step-by-Step Commands
 
 ```bash
-# Run as root - creates weblogic user and installs WebLogic
+# 1. Install WebLogic (as root)
 sudo ./01_set_weblogic.sh
+
+# 2. Create domain (as root, auto-generates password)
+sudo ./02_set_domain.sh [domain_name]
+
+# 3. Start domain (as root)
+sudo ./03_run_domain.sh [domain_name]
 ```
 
-### 2. Create Domain
+### Custom Password Setup
 
 ```bash
-# Create domain with optional domain name
-su - weblogic -c './02_set_domain.sh [domain_name]'
+# Set custom password before creating domain
+export ADMIN_PASSWORD="YourSecurePassword123!"
+sudo ./02_set_domain.sh [domain_name]
 ```
 
-If the admin password is not set via the `ADMIN_PASSWORD` environment variable, the script will prompt for it interactively. The password must meet these requirements:
+### Requirements
 
-- Minimum 8 characters
-- At least one uppercase letter
-- At least one lowercase letter
-- At least one number
-- At least one special character
+- Oracle JDK 8+ and WebLogic 12.2.1.4.0 files in `/opt/oracle/install_files/`
+- Oracle Linux WSL or similar Linux environment
+- Root/sudo access
 
-### 3. Start Domain
+---
 
-```bash
-su - weblogic -c './03_run_domain.sh [domain_name]'
-```
+## Detailed Documentation
 
-Default domain name is 'test_domain' if not specified.
+## Reference Documentation
 
-## Environment Variables
+### Scripts Overview
 
-The scripts use the following environment structure:
+- **01_set_weblogic.sh** - Installs WebLogic Server and creates weblogic user
+- **02_set_domain.sh** - Creates and configures WebLogic domains with secure passwords
+- **03_run_domain.sh** - Starts and manages WebLogic domains
+
+### Environment Structure
 
 ```bash
 ORACLE_BASE="/opt/oracle"
 ORACLE_HOME="$ORACLE_BASE/middleware"
-MW_HOME="$ORACLE_HOME"
-WLS_HOME="$MW_HOME/wlserver"
-DOMAIN_HOME="$MW_HOME/user_projects/domains"
+WLS_HOME="$ORACLE_HOME/wlserver"
+DOMAIN_HOME="$ORACLE_HOME/user_projects/domains"
 ```
 
-## Features
+### Troubleshooting
 
-- Automated WebLogic installation and configuration
-- Domain creation and management
-- Server status monitoring
-- Log viewing and management
-- Node Manager integration
-- Security best practices (no root execution)
-- Comprehensive error handling and validation
+Common issues:
 
-## Monitoring
+- **Permission Denied**: Ensure running with sudo/root access
+- **Java Not Found**: Verify JDK files are in Downloads folder
+- **Server Start Failure**: Check if port 7001 is available
 
-The `03_run_domain.sh` script provides:
+### Features
 
-- Real-time server status monitoring
-- Access to server logs
-- Admin console URL (default: `http://localhost:7001/console`)
-- Node Manager status
-
-## Troubleshooting
-
-Common issues and solutions:
-
-1. **Permission Denied**
-   - Ensure running as `weblogic` user
-   - Check file permissions
-
-2. **Java Not Found**
-   - Verify JDK installation
-   - Check JAVA_HOME setting
-
-3. **Server Start Failure**
-   - Check server logs
-   - Verify domain configuration
-   - Ensure ports are available
-
-## Security Notes
-
-- Scripts must run as `weblogic` user
-- Root execution is explicitly prevented
-- Sensitive operations are validated
-- Environment is isolated per domain
-
-## Support
-
-For issues or enhancements:
-
-1. Check the error messages and logs
-2. Review the requirements
-3. Submit detailed bug reports if needed
-
-## Best Practices
-
-- Always run as `weblogic` user
-- Monitor server logs during startup
-- Back up domain configurations
-- Follow security guidelines
-- Keep WebLogic patched and updated
+- Automated installation and configuration
+- Secure password generation
+- Idempotent scripts (safe to run multiple times)
+- Comprehensive error handling

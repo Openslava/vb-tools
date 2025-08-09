@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # WebLogic 12c Installation Script - Simplified Version
 # This script installs WebLogic 12c with basic configuration
@@ -20,14 +21,19 @@ export INSTALL_FILES_DIR="$ORACLE_BASE/install_files"
 
 echo "Setting up WebLogic 12c..."
 
-# Create WebLogic user and group
-echo "Creating WebLogic user..."
+# Short-circuit if already installed (idempotent)
+if [ -d "$WLS_HOME" ]; then
+    echo "WebLogic already installed at $WLS_HOME. Skipping installation."
+    exit 0
+fi
+
+# Create WebLogic Linux user and group
+echo "Creating WebLogic Linux user..."
 groupadd -f weblogic
 useradd -m -g weblogic weblogic 2>/dev/null || echo "User weblogic already exists"
 
 # Create directories
 echo "Creating directories..."
-rm -rf "$ORACLE_HOME"
 mkdir -p "$INSTALL_FILES_DIR"
 mkdir -p "$ORACLE_HOME"
 mkdir -p /opt/oracle/oraInventory
@@ -55,7 +61,15 @@ if [ ! -f "$INSTALL_FILES_DIR/jdk-8u461-linux-x64.rpm" ]; then
     exit 1
 fi
 
-rpm -ivh "$INSTALL_FILES_DIR/jdk-8u461-linux-x64.rpm"
+if rpm -qa | grep -q "jdk1.8.0_461"; then
+    echo "Oracle JDK already installed, skipping..."
+else
+    echo "Installing Oracle JDK RPM..."
+    if ! rpm -ivh "$INSTALL_FILES_DIR/jdk-8u461-linux-x64.rpm"; then
+        echo "Error: Failed to install Oracle JDK RPM"
+        exit 1
+    fi
+fi
 
 # Set Java environment
 if [ -d "/usr/java/latest" ]; then
@@ -99,7 +113,7 @@ EOF
 
 # Install WebLogic
 su - weblogic -c "export JAVA_HOME=$JAVA_HOME && \
-    $JAVA_HOME/bin/java -jar $TEMP_DIR/fmw_12.2.1.4.0_infrastructure.jar -silent -responseFile $INSTALL_FILES_DIR/wls.rsp"
+    $JAVA_HOME/bin/java -jar $TEMP_DIR/fmw_12.2.1.4.0_infrastructure.jar -responseFile $INSTALL_FILES_DIR/wls.rsp"
 
 # Clean up
 rm -rf "$TEMP_DIR"
