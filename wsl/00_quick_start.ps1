@@ -27,6 +27,8 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 # On first launch, Windows may prompt to create a UNIX username/password for the distro.
 & "$scriptDir\01_set_wsl.ps1" -distroName $distroName -setdefault -forse:$forse
 
+& "$scriptDir\03_set_tools.ps1" -distroName $distroName -forse:$forse
+
 # List current WSL distributions
 wsl -l -v
 # end
