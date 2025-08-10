@@ -80,5 +80,4 @@ Write-Host "Username: $adminUser"
 Write-Host "Password: $adminPassword"
 Write-Host ""
 Write-Host "Domain: $domainName"
-Write-Host "Access WSL: wsl -d $distroName"
-
+Write-Host "To start in WSL: wsl -d $distroName -- sudo su - weblogic -c '/opt/oracle/middleware//user_projects/domains/$domainName/bin/startWebLogic.sh'"
