@@ -113,7 +113,7 @@ EOF
 
 # Install WebLogic
 su - weblogic -c "export JAVA_HOME=$JAVA_HOME && \
-    $JAVA_HOME/bin/java -jar $TEMP_DIR/fmw_12.2.1.4.0_infrastructure.jar -responseFile $INSTALL_FILES_DIR/wls.rsp"
+    $JAVA_HOME/bin/java -jar $TEMP_DIR/fmw_12.2.1.4.0_infrastructure.jar -silent -responseFile $INSTALL_FILES_DIR/wls.rsp"
 
 # Clean up
 rm -rf "$TEMP_DIR"
