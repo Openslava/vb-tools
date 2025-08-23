@@ -1,0 +1,69 @@
+# Inventory Template for Project-Specific Deployments
+# Copy this file to your private project directory and customize
+
+# Example inventory structure:
+# [webservers]
+# web1.example.com ansible_host=192.168.1.10
+# web2.example.com ansible_host=192.168.1.11
+# 
+# [databases] 
+# db1.example.com ansible_host=192.168.1.20
+# db2.example.com ansible_host=192.168.1.21
+#
+# [loadbalancers]
+# lb1.example.com ansible_host=192.168.1.30
+#
+# [production:children]
+# webservers
+# databases
+# loadbalancers
+#
+# [production:vars]
+# ansible_user=deploy
+# ansible_ssh_private_key_file=/path/to/private/key
+# target_group=production
+# patch_reboot_required=true
+# maintenance_window_start="02:00"
+# maintenance_window_end="06:00"
+# notification_email=admin@example.com
+
+# Variables that should be defined per project:
+# ansible_user: The username for SSH connections
+# ansible_ssh_private_key_file: Path to SSH private key
+# ansible_become_pass: Sudo password (use vault or environment)
+# target_group: Which group to target for operations
+# patch_exclude_packages: List of packages to exclude from updates
+# critical_services: Services that must be running after patches
+# notification_email: Email for notifications
+
+---
+# YAML format example (copy and customize for your project)
+
+all:
+  vars:
+    # Global variables for all hosts
+    ansible_user: "{{ lookup('env', 'ANSIBLE_USER') | default('your_default_user') }}"
+    ansible_ssh_private_key_file: "{{ lookup('env', 'ANSIBLE_SSH_KEY') | default('~/.ssh/id_rsa') }}"
+    # Use environment variable or vault for password
+    ansible_become_pass: "{{ lookup('env', 'ANSIBLE_BECOME_PASS') | default(vault_become_pass) }}"
+    
+  children:
+    production:
+      children:
+        webservers:
+          hosts:
+            web1.example.com:
+              ansible_host: 192.168.1.10
+            web2.example.com:
+              ansible_host: 192.168.1.11
+        databases:
+          hosts:
+            db1.example.com:
+              ansible_host: 192.168.1.20
+              
+    staging:
+      children:
+        webservers:
+          hosts:
+            staging-web.example.com:
+              ansible_host: 192.168.2.10

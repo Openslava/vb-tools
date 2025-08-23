@@ -1,0 +1,139 @@
+---
+- name: Setup Development Environment
+  hosts: "{{ target_group | default('all') }}"
+  become: true
+  
+  vars:
+    dev_packages:
+      - git
+      - curl
+      - vim
+      - htop
+      - tree
+      - python3
+      - python3-pip
+      - nodejs
+      - npm
+      
+  tasks:
+    - name: Update package cache
+      package:
+        update_cache: yes
+      
+    - name: Install development tools
+      package:
+        name: "{{ dev_packages }}"
+        state: present
+      ignore_errors: yes
+      
+    - name: Create development directory
+      file:
+        path: "/home/{{ ansible_user | default('ansible') }}/dev"
+        state: directory
+        owner: "{{ ansible_user | default('ansible') }}"
+        mode: '0755'
+      when: ansible_os_family == "RedHat"
+    
+    - name: Install Node.js and npm
+      dnf:
+        name:
+          - nodejs
+          - npm
+        state: present
+      when: ansible_os_family == "RedHat"
+      ignore_errors: true
+    
+    - name: Create development directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+        owner: "{{ dev_user }}"
+        group: "{{ dev_user }}"
+      loop:
+        - "/home/{{ dev_user }}/development"
+        - "/home/{{ dev_user }}/development/projects"
+        - "/home/{{ dev_user }}/development/scripts"
+        - "/home/{{ dev_user }}/.local/bin"
+    
+    - name: Create useful aliases
+      blockinfile:
+        path: "/home/{{ dev_user }}/.bashrc"
+        marker: "# {mark} ANSIBLE MANAGED ALIASES"
+        block: |
+          # Development aliases
+          alias ll='ls -la'
+          alias la='ls -la'
+          alias l='ls -l'
+          alias ..='cd ..'
+          alias ...='cd ../..'
+          alias grep='grep --color=auto'
+          alias tree='tree -C'
+          alias dev='cd ~/development'
+          alias projects='cd ~/development/projects'
+        create: true
+        owner: "{{ dev_user }}"
+        group: "{{ dev_user }}"
+    
+    - name: Install useful Python packages
+      pip:
+        name:
+          - requests
+          - jinja2
+          - pyyaml
+          - black
+          - flake8
+        state: present
+      become_user: "{{ dev_user }}"
+    
+    - name: Create a sample project structure
+      file:
+        path: "/home/{{ dev_user }}/development/projects/sample-project/{{ item }}"
+        state: directory
+        mode: '0755'
+        owner: "{{ dev_user }}"
+        group: "{{ dev_user }}"
+      loop:
+        - src
+        - tests
+        - docs
+        - scripts
+    
+    - name: Create sample README
+      copy:
+        content: |
+          # Sample Project
+          
+          This project structure was created by Ansible.
+          
+          ## Structure
+          - `src/` - Source code
+          - `tests/` - Test files
+          - `docs/` - Documentation
+          - `scripts/` - Utility scripts
+          
+          ## Getting Started
+          1. Add your code to the `src/` directory
+          2. Write tests in the `tests/` directory
+          3. Document your project in the `docs/` directory
+          
+          Created on: {{ ansible_date_time.iso8601 }}
+        dest: "/home/{{ dev_user }}/development/projects/sample-project/README.md"
+        mode: '0644'
+        owner: "{{ dev_user }}"
+        group: "{{ dev_user }}"
+    
+    - name: Display setup summary
+      debug:
+        msg: |
+          Development environment setup complete!
+          
+          Installed tools: {{ dev_tools | join(', ') }}
+          Project directory: /home/{{ dev_user }}/development/projects
+          
+          Useful commands:
+          - 'dev' - go to development directory
+          - 'projects' - go to projects directory
+          - 'll' - detailed file listing
+          
+          Reload your shell or run: source ~/.bashrc

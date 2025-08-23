@@ -1,0 +1,48 @@
+# Project-specific variables template
+# Copy this file to your private project directory as group_vars/all.yml
+
+---
+# SSH and Authentication
+ansible_user: "{{ lookup('env', 'ANSIBLE_USER') | default('deploy') }}"
+ansible_ssh_private_key_file: "{{ lookup('env', 'ANSIBLE_SSH_KEY') | default('~/.ssh/project_key') }}"
+
+# Privilege Escalation (choose one method)
+# Method 1: Environment variable
+ansible_become_pass: "{{ lookup('env', 'ANSIBLE_BECOME_PASS') }}"
+
+# Method 2: Vault variable (recommended for teams)
+# ansible_become_pass: "{{ vault_become_pass }}"
+
+# Method 3: No password required (passwordless sudo)
+# ansible_become_pass: ""
+
+# Patching Configuration
+patch_reboot_required: true
+patch_exclude_packages:
+  - "kernel*"  # Example: exclude kernel updates
+  - "docker*"  # Example: exclude docker updates
+
+# Maintenance Windows
+maintenance_window_start: "02:00"
+maintenance_window_end: "06:00"
+
+# Critical Services (will be checked after patching)
+critical_services:
+  - sshd
+  - nginx
+  - docker
+  - mysql
+
+# Notification Settings
+notification_email: "ops-team@your-company.com"
+
+# Project-specific settings
+project_name: "my-project"
+environment: "production"  # or staging, development
+target_group: "production"  # default group for operations
+
+# Custom variables for your specific needs
+# database_backup_required: true
+# custom_app_restart_command: "systemctl restart myapp"
+# monitoring_endpoints:
+#   - "https://healthcheck.example.com/status"

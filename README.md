@@ -1,32 +1,52 @@
 # VB-Tools
 
-A collection of automation tools and utilities for Windows development environments, focusing on WSL (Windows Subsystem for Linux) and Oracle WebLogic Server setup.
+Automation tools for Windows development environments: WSL, WebLogic, and Ansible.
 
-## 🚀 Features
+## Component Documentation
 
-- **WSL Automation**: Automated installation, configuration, and DNS setup for Oracle Linux WSL
-- **WebLogic Setup**: Streamlined Oracle WebLogic Server domain creation and management
-- **Sample Applications**: Ready-to-deploy Java servlet applications for WebLogic testing
-- **Development Tools**: Idempotent scripts with minimal user input for rapid environment setup
+- **[Ansible](./ansible/readme.md)** - Ansible automation guides and templates
+- **[WSL](./wsl/readme.md)** - Windows Subsystem for Linux setup
+- **[WebLogic](./weblogic/readme.md)** - Oracle WebLogic Server automation
 
-## 📋 Prerequisites
+## 🏗️ Structure
 
-- Windows 10/11 with WSL support
-- PowerShell 5.1 or later
-- Administrator privileges for initial setup
+```
+vb-tools/
+├── ansible/           # Ansible automation platform
+│   ├── docs/          # Ansible guides and templates
+│   ├── playbooks/     # Simple playbooks (patch, dev-setup, execute-script)
+│   ├── scripts/       # Example scripts for playbooks
+│   └── *.ps1, *.sh    # Setup and helper scripts
+├── weblogic/          # Oracle WebLogic automation
+│   ├── sample/        # Java servlet example
+│   └── *.ps1, *.sh    # WebLogic setup scripts
+└── wsl/               # WSL installation and configuration
+    └── *.ps1, *.sh    # WSL setup scripts
+```
 
-## 🛠️ Quick Start
 
+
+## � Quick Start
+
+### Complete Setup
 ```powershell
-# Clone the repository
-git clone https://github.com/Openslava/vb-tools.git
-cd vb-tools
-
-# Run the complete setup (WSL + WebLogic)
+# WSL + WebLogic + Ansible (all-in-one)
 .\weblogic\00_quick_start.ps1
 ```
 
-## 📚 Documentation
+### Individual Components
+```powershell
+# WSL only
+.\wsl\00_quick_start.ps1
+
+# Ansible only  
+.\ansible\00_quick_start.ps1
+
+# WebLogic (requires WSL)
+.\weblogic\00_quick_start.ps1
+```
+
+## � Documentation
 
 ### WSL Tools
 - [WSL Setup Guide](./wsl/readme.md) - Complete WSL installation and configuration
@@ -60,7 +80,10 @@ vb-tools/
 │   ├── 02_set_domain.sh    # Domain creation
 │   ├── 03_run_domain.sh    # Domain startup
 │   └── sample/             # Sample Java application
-└── docs/                   # Additional documentation
+├── ansible/                # Ansible automation platform
+    ├── docs/               # Ansible guides and templates
+    ├── playbooks/          # Simple playbooks
+    └── scripts/            # Example scripts
 ```
 
 ## 🎯 Usage Examples

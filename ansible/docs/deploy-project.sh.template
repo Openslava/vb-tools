@@ -1,0 +1,119 @@
+#!/bin/bash
+
+# Project deployment script template
+# Copy and customize for each project
+
+set -e
+
+# Configuration
+PROJECT_NAME="my-project"
+PROJECT_CONFIG_DIR="./project-configs/${PROJECT_NAME}"
+PLAYBOOK_REPO_DIR="./vb-tools"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+print_status() {
+    echo -e "${GREEN}[INFO]${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[WARN]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Check if project config exists
+if [ ! -d "$PROJECT_CONFIG_DIR" ]; then
+    print_error "Project config directory not found: $PROJECT_CONFIG_DIR"
+    print_status "Please create project configuration first:"
+    echo "  mkdir -p $PROJECT_CONFIG_DIR"
+    echo "  cp $PLAYBOOK_REPO_DIR/ansible/inventory-template.yml $PROJECT_CONFIG_DIR/inventory.yml"
+    echo "  cp $PLAYBOOK_REPO_DIR/ansible/group_vars/all.yml.template $PROJECT_CONFIG_DIR/group_vars/all.yml"
+    exit 1
+fi
+
+# Load environment variables if .env exists
+if [ -f "$PROJECT_CONFIG_DIR/.env" ]; then
+    print_status "Loading environment variables from $PROJECT_CONFIG_DIR/.env"
+    set -a  # automatically export all variables
+    source "$PROJECT_CONFIG_DIR/.env"
+    set +a
+fi
+
+# Verify required environment variables
+REQUIRED_VARS=("ANSIBLE_USER" "ANSIBLE_BECOME_PASS")
+for var in "${REQUIRED_VARS[@]}"; do
+    if [ -z "${!var}" ]; then
+        print_error "Required environment variable $var is not set"
+        print_status "Set it in $PROJECT_CONFIG_DIR/.env or export it manually"
+        exit 1
+    fi
+done
+
+# Function to run ansible playbook with project config
+run_playbook() {
+    local playbook="$1"
+    local extra_vars="${2:-}"
+    
+    print_status "Running playbook: $playbook"
+    print_status "Using inventory: $PROJECT_CONFIG_DIR/inventory.yml"
+    
+    ansible-playbook \
+        -i "$PROJECT_CONFIG_DIR/inventory.yml" \
+        "$PLAYBOOK_REPO_DIR/ansible/playbooks/$playbook" \
+        ${extra_vars:+--extra-vars "$extra_vars"} \
+        --vault-password-file <(echo "$ANSIBLE_VAULT_PASS") 2>/dev/null || \
+    ansible-playbook \
+        -i "$PROJECT_CONFIG_DIR/inventory.yml" \
+        "$PLAYBOOK_REPO_DIR/ansible/playbooks/$playbook" \
+        ${extra_vars:+--extra-vars "$extra_vars"}
+}
+
+# Main execution
+case "${1:-help}" in
+    "patch")
+        print_status "Starting system patching for project: $PROJECT_NAME"
+        run_playbook "patch-systems.yml"
+        ;;
+    "dev-setup")
+        print_status "Setting up development environment for project: $PROJECT_NAME"
+        run_playbook "setup-local-dev.yml"
+        ;;
+    "script")
+        if [ -z "$2" ]; then
+            print_error "Please specify script path: $0 script /path/to/script.sh"
+            exit 1
+        fi
+        print_status "Executing script $2 on project: $PROJECT_NAME"
+        run_playbook "execute-script.yml" "script_path=$2 ${3:+script_args=$3}"
+        ;;
+    "help"|*)
+        echo "Usage: $0 {patch|dev-setup|script|help}"
+        echo ""
+        echo "Commands:"
+        echo "  patch       - Apply system patches to all hosts"
+        echo "  dev-setup   - Setup development environment"
+        echo "  script      - Execute local script on remote hosts"
+        echo "  help        - Show this help message"
+        echo ""
+        echo "Examples:"
+        echo "  $0 patch"
+        echo "  $0 dev-setup"
+        echo "  $0 script ./scripts/deploy.sh"
+        echo "  $0 script ./scripts/setup.sh '--env production'"
+        echo ""
+        echo "Environment variables required:"
+        echo "  ANSIBLE_USER       - SSH username"
+        echo "  ANSIBLE_BECOME_PASS - Sudo password"
+        echo "  ANSIBLE_SSH_KEY    - Path to SSH private key (optional)"
+        echo "  ANSIBLE_VAULT_PASS - Vault password (optional)"
+        echo ""
+        echo "Project config directory: $PROJECT_CONFIG_DIR"
+        ;;
+esac

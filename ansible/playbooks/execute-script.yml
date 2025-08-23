@@ -1,0 +1,36 @@
+---
+- name: Execute Script on Remote Machines
+  hosts: "{{ target_group | default('all') }}"
+  become: "{{ script_requires_sudo | default(false) }}"
+  
+  tasks:
+    - name: Check script_path is provided
+      fail:
+        msg: "Use -e script_path=/path/to/script.sh"
+      when: script_path is not defined
+      
+    - name: Create temp directory
+      tempfile:
+        state: directory
+      register: temp_dir
+      
+    - name: Copy script to remote host
+      copy:
+        src: "{{ script_path }}"
+        dest: "{{ temp_dir.path }}/script.sh"
+        mode: '0755'
+      
+    - name: Execute script
+      shell: |
+        cd {{ temp_dir.path }}
+        ./script.sh {{ script_args | default('') }}
+      register: result
+      
+    - name: Show output
+      debug:
+        msg: "{{ result.stdout }}"
+      
+    - name: Clean up
+      file:
+        path: "{{ temp_dir.path }}"
+        state: absent

@@ -1,0 +1,21 @@
+---
+- name: Patch Operating System
+  hosts: "{{ target_group | default('all') }}"
+  become: true
+  
+  tasks:
+    - name: Update package cache
+      package:
+        update_cache: yes
+      
+    - name: Apply all updates
+      package:
+        name: "*"
+        state: latest
+      register: updates
+      
+    - name: Reboot if needed
+      reboot:
+      when: 
+        - updates.changed
+        - reboot_required | default(false)

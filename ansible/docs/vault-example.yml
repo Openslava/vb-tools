@@ -1,0 +1,48 @@
+# Example Vault File (this would be encrypted with ansible-vault create)
+# This is just an example - real vault files are encrypted and look like:
+# $ANSIBLE_VAULT;1.1;AES256
+# 66633363656264353561613230396665623039643631353338636134373739623865373532326462
+# 6234363165323937366338306434326463653836343566620a373464656365653936623166663333
+
+---
+# Database Credentials
+vault_db_root_password: "super_secret_root_password_123!"
+vault_db_app_password: "app_database_password_456!"
+vault_db_backup_password: "backup_user_password_789!"
+
+# SSH and Privilege Escalation
+vault_ansible_user: "deploy"
+vault_become_pass: "sudo_password_secret_2024!"
+vault_ssh_private_key_passphrase: "ssh_key_passphrase_xyz"
+
+# API Keys and Tokens
+vault_api_key: "abcd1234efgh5678ijkl9012mnop3456"
+vault_jwt_secret: "your_jwt_signing_secret_key_here"
+vault_encryption_key: "app_encryption_key_32_characters"
+
+# SSL/TLS Certificates
+vault_ssl_cert_password: "certificate_password_secure!"
+vault_ssl_keystore_password: "keystore_password_strong!"
+
+# Application Secrets
+vault_app_secret_key: "django_secret_key_or_similar"
+vault_session_secret: "session_encryption_secret"
+
+# Cloud Provider Credentials
+vault_aws_access_key: "AKIA1234567890EXAMPLE"
+vault_aws_secret_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+vault_azure_tenant_id: "tenant-id-guid-here"
+vault_azure_client_secret: "azure-client-secret-here"
+
+# Email/SMTP Configuration
+vault_smtp_password: "email_service_password"
+vault_email_api_key: "sendgrid_or_mailgun_api_key"
+
+# Monitoring and Logging
+vault_monitoring_api_key: "datadog_newrelic_api_key"
+vault_log_shipping_token: "elasticsearch_logstash_token"
+
+# Backup and Storage
+vault_s3_access_key: "backup_s3_access_key"
+vault_s3_secret_key: "backup_s3_secret_key"
+vault_backup_encryption_key: "backup_files_encryption_key"
