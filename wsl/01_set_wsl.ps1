@@ -34,7 +34,7 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $repoRoot = Split-Path -Parent $scriptDir
 
 # Resolve wsl.exe path (handles cases where 'wsl' isn't on PATH yet)
-$wslCmd = (Get-Command wsl -ErrorAction SilentlyContinue)?.Source
+$wslCmd = (Get-Command wsl -ErrorAction SilentlyContinue).Source
 if (-not $wslCmd) {
     Write-Warning "WSL is not available on this system. Use -install to enable required Windows features, then reboot."
     exit 1
