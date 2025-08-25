@@ -1,8 +1,8 @@
 # Ansible Playbooks
 
-Three simple playbooks for common tasks.
+Simple playbooks for common tasks and Windows host management.
 
-## Playbooks
+## Core Playbooks
 
 ### patch-systems.yml
 Updates all packages on target systems.
@@ -24,6 +24,22 @@ Runs a local script on remote machines.
 ```bash
 ansible-playbook ansible/playbooks/execute-script.yml -e "script_path=./ansible/scripts/system-info.sh"
 ```
+
+## Windows Host Management
+
+### install-vscode-portable-wsl.yml
+Installs VS Code in portable mode on Windows host from WSL.
+
+```bash
+ansible-playbook ansible/playbooks/install-vscode-portable-wsl.yml
+```
+
+**Features:**
+- Downloads VS Code archive directly to Windows host
+- Installs in portable mode (all data in local folder)
+- Creates desktop shortcut
+- No admin privileges required
+- Can be customized with different target directories
 
 ## Options
 

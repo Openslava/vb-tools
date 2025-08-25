@@ -1,0 +1,86 @@
+---
+- name: Install VS Code Portable on Windows Host
+  hosts: localhost
+  gather_facts: no
+  vars:
+    vscode_portable_dir: "C:\\Tools\\VSCode-Portable"
+    vscode_download_url: "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-archive"
+    temp_dir: "C:\\temp"
+    
+  tasks:
+    - name: Create portable directory
+      win_shell: |
+        if (!(Test-Path "{{ vscode_portable_dir }}")) {
+            New-Item -ItemType Directory -Path "{{ vscode_portable_dir }}" -Force
+        }
+      delegate_to: localhost
+      connection: local
+      
+    - name: Create temp directory
+      win_shell: |
+        if (!(Test-Path "{{ temp_dir }}")) {
+            New-Item -ItemType Directory -Path "{{ temp_dir }}" -Force
+        }
+      delegate_to: localhost
+      connection: local
+      
+    - name: Download VS Code archive
+      win_shell: |
+        $url = "{{ vscode_download_url }}"
+        $output = "{{ temp_dir }}\\vscode.zip"
+        Write-Host "Downloading VS Code..."
+        Invoke-WebRequest -Uri $url -OutFile $output -UseBasicParsing
+        Write-Host "Download completed: $output"
+      delegate_to: localhost
+      connection: local
+      
+    - name: Extract VS Code to portable directory
+      win_shell: |
+        $zipFile = "{{ temp_dir }}\\vscode.zip"
+        $destination = "{{ vscode_portable_dir }}"
+        Write-Host "Extracting VS Code to $destination..."
+        Expand-Archive -Path $zipFile -DestinationPath $destination -Force
+        Write-Host "Extraction completed"
+      delegate_to: localhost
+      connection: local
+      
+    - name: Create data directory for portable mode
+      win_shell: |
+        $dataDir = "{{ vscode_portable_dir }}\\data"
+        if (!(Test-Path $dataDir)) {
+            New-Item -ItemType Directory -Path $dataDir -Force
+            Write-Host "Created data directory: $dataDir"
+        }
+      delegate_to: localhost
+      connection: local
+      
+    - name: Create desktop shortcut
+      win_shell: |
+        $WshShell = New-Object -comObject WScript.Shell
+        $Shortcut = $WshShell.CreateShortcut("$env:USERPROFILE\\Desktop\\VS Code Portable.lnk")
+        $Shortcut.TargetPath = "{{ vscode_portable_dir }}\\Code.exe"
+        $Shortcut.WorkingDirectory = "{{ vscode_portable_dir }}"
+        $Shortcut.Description = "Visual Studio Code Portable"
+        $Shortcut.Save()
+        Write-Host "Desktop shortcut created"
+      delegate_to: localhost
+      connection: local
+      
+    - name: Clean up temp files
+      win_shell: |
+        $zipFile = "{{ temp_dir }}\\vscode.zip"
+        if (Test-Path $zipFile) {
+            Remove-Item $zipFile -Force
+            Write-Host "Cleaned up: $zipFile"
+        }
+      delegate_to: localhost
+      connection: local
+      
+    - name: Display installation info
+      debug:
+        msg: |
+          VS Code Portable installed successfully!
+          Location: {{ vscode_portable_dir }}
+          Executable: {{ vscode_portable_dir }}\Code.exe
+          Data folder: {{ vscode_portable_dir }}\data
+          Desktop shortcut created: VS Code Portable.lnk

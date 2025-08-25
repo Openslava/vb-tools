@@ -1,0 +1,136 @@
+---
+- name: Install VS Code Portable via PowerShell from WSL
+  hosts: localhost
+  gather_facts: no
+  vars:
+    vscode_portable_dir: "/mnt/c/Tools/VSCode-Portable"
+    vscode_download_url: "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-archive"
+    temp_dir: "/mnt/c/temp"
+    
+  tasks:
+    - name: Create directories on Windows host
+      shell: |
+        powershell.exe "
+        if (!(Test-Path 'C:\\Tools\\VSCode-Portable')) {
+            New-Item -ItemType Directory -Path 'C:\\Tools\\VSCode-Portable' -Force
+            Write-Host 'Created directory: C:\\Tools\\VSCode-Portable'
+        }
+        if (!(Test-Path 'C:\\temp')) {
+            New-Item -ItemType Directory -Path 'C:\\temp' -Force
+            Write-Host 'Created directory: C:\\temp'
+        }
+        "
+      register: create_dirs
+      
+    - name: Show directory creation result
+      debug:
+        var: create_dirs.stdout_lines
+        
+    - name: Download VS Code portable archive
+      shell: |
+        powershell.exe "
+        \$url = '{{ vscode_download_url }}'
+        \$output = 'C:\\temp\\vscode.zip'
+        Write-Host 'Downloading VS Code from: \$url'
+        try {
+            Invoke-WebRequest -Uri \$url -OutFile \$output -UseBasicParsing
+            Write-Host 'Download completed: \$output'
+            Write-Host 'File size:' (Get-Item \$output).Length 'bytes'
+        } catch {
+            Write-Error 'Download failed: \$_'
+            exit 1
+        }
+        "
+      register: download_result
+      
+    - name: Show download result
+      debug:
+        var: download_result.stdout_lines
+        
+    - name: Extract VS Code archive
+      shell: |
+        powershell.exe "
+        \$zipFile = 'C:\\temp\\vscode.zip'
+        \$destination = 'C:\\Tools\\VSCode-Portable'
+        Write-Host 'Extracting VS Code archive...'
+        try {
+            Expand-Archive -Path \$zipFile -DestinationPath \$destination -Force
+            Write-Host 'Extraction completed to: \$destination'
+            \$extractedItems = Get-ChildItem \$destination
+            Write-Host 'Extracted items:' \$extractedItems.Count
+        } catch {
+            Write-Error 'Extraction failed: \$_'
+            exit 1
+        }
+        "
+      register: extract_result
+      
+    - name: Show extraction result
+      debug:
+        var: extract_result.stdout_lines
+        
+    - name: Create portable data directory and shortcuts
+      shell: |
+        powershell.exe "
+        \$vscodePath = 'C:\\Tools\\VSCode-Portable'
+        \$dataDir = '\$vscodePath\\data'
+        
+        # Create data directory for portable mode
+        if (!(Test-Path \$dataDir)) {
+            New-Item -ItemType Directory -Path \$dataDir -Force
+            Write-Host 'Created portable data directory: \$dataDir'
+        }
+        
+        # Create desktop shortcut
+        try {
+            \$WshShell = New-Object -comObject WScript.Shell
+            \$Shortcut = \$WshShell.CreateShortcut(\"\$env:USERPROFILE\\Desktop\\VS Code Portable.lnk\")
+            \$Shortcut.TargetPath = '\$vscodePath\\Code.exe'
+            \$Shortcut.WorkingDirectory = \$vscodePath
+            \$Shortcut.Description = 'Visual Studio Code Portable'
+            \$Shortcut.Save()
+            Write-Host 'Desktop shortcut created: VS Code Portable.lnk'
+        } catch {
+            Write-Warning 'Could not create desktop shortcut: \$_'
+        }
+        
+        # Verify installation
+        if (Test-Path '\$vscodePath\\Code.exe') {
+            Write-Host 'VS Code executable found: \$vscodePath\\Code.exe'
+            \$version = (Get-Item '\$vscodePath\\Code.exe').VersionInfo.ProductVersion
+            Write-Host 'VS Code version: \$version'
+        } else {
+            Write-Error 'VS Code executable not found!'
+        }
+        "
+      register: setup_result
+      
+    - name: Show setup result
+      debug:
+        var: setup_result.stdout_lines
+        
+    - name: Clean up temporary files
+      shell: |
+        powershell.exe "
+        \$zipFile = 'C:\\temp\\vscode.zip'
+        if (Test-Path \$zipFile) {
+            Remove-Item \$zipFile -Force
+            Write-Host 'Cleaned up: \$zipFile'
+        }
+        "
+      register: cleanup_result
+      
+    - name: Display installation summary
+      debug:
+        msg: |
+          🎉 VS Code Portable Installation Complete!
+          
+          📁 Installation Directory: C:\Tools\VSCode-Portable
+          🚀 Executable: C:\Tools\VSCode-Portable\Code.exe
+          💾 Data Directory: C:\Tools\VSCode-Portable\data
+          🔗 Desktop Shortcut: VS Code Portable.lnk
+          
+          ▶️ To start VS Code: Double-click the desktop shortcut
+          ▶️ Or run from WSL: /mnt/c/Tools/VSCode-Portable/Code.exe
+          
+          ✅ Portable mode: All settings and extensions stored in data folder
