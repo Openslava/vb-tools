@@ -1,5 +1,4 @@
-# WebLogic Scripting Tool (WLST) script to list application states 
-# in a WebLogic domain.
+# List WebLogic applications
 import sys
 from getpass import getpass
 
@@ -7,24 +6,22 @@ if len(sys.argv) < 4:
     print("Usage: wlst.cmd script.py <username> <host> <port>")
     exit()
 
-username = sys.argv[1]
-host = sys.argv[2]
-port = sys.argv[3]
-password = getpass('Enter WebLogic password: ')
+username, host, port = sys.argv[1:4]
+password = getpass('WebLogic password: ')
 
-url = f't3://{host}:{port}'  # example 't3://localhost:7001'
-connect(username, password, url)
-# ...rest of your WLST script...
+print(f"🔗 Connecting to {host}:{port}...")
+connect(username, password, f't3://{host}:{port}')
+
 domainRuntime()
-
 apps = cmo.getAppDeployments()
+
+print("📱 Application Status:")
 for app in apps:
-    moduleName = app.getName()
-    targets = app.getTargets()
-    for t in targets:
-        appRuntime = getMBean('/AppRuntimeStateRuntime/AppRuntimeStateRuntime')
-        status = appRuntime.getCurrentState(moduleName, t.getName())
-        print(moduleName + " on " + t.getName() + ": " + status)
+    name = app.getName()
+    for target in app.getTargets():
+        runtime = getMBean('/AppRuntimeStateRuntime/AppRuntimeStateRuntime')
+        status = runtime.getCurrentState(name, target.getName())
+        print(f"  {name} on {target.getName()}: {status}")
 
 disconnect()
 exit()

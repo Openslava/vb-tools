@@ -1,0 +1,21 @@
+# Artifacts folders - contains generated/temporary files
+artifacts/
+**/artifacts/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Certificate exports
+*.crt
+*.pem
+
+# Logs
+*.log
+
+# PowerShell specific
+*.ps1xml
+
+# OS specific
+.DS_Store
+Thumbs.db

@@ -1,40 +1,22 @@
 #!/bin/bash
+# System information script
+set -e
 
-# Simple system information script
-# Usage: ./system-info.sh [--env environment]
+ENVIRONMENT="${1:-development}"
 
-ENVIRONMENT="development"
-
-# Parse arguments
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --env)
-            ENVIRONMENT="$2"
-            shift 2
-            ;;
-        *)
-            shift
-            ;;
-    esac
-done
-
-echo "=== System Information ==="
-echo "Hostname: $(hostname)"
-echo "Date: $(date)"
-echo "Environment: $ENVIRONMENT"
-echo "User: $(whoami)"
-
+echo "💻 System Information"
+echo "Hostname: $(hostname) | Date: $(date)"
+echo "Environment: $ENVIRONMENT | User: $(whoami)"
 echo ""
-echo "=== System Resources ==="
-echo "CPU cores: $(nproc)"
-echo "Memory: $(free -h | grep Mem | awk '{print $3 "/" $2}')"
-echo "Disk usage: $(df -h / | tail -1 | awk '{print $5 " used"}')"
 
+echo "📊 Resources"
+echo "CPU: $(nproc) cores | Memory: $(free -h | grep Mem | awk '{print $3 "/" $2}')"
+echo "Disk: $(df -h / | tail -1 | awk '{print $5 " used"}')"
 echo ""
-echo "=== Software Versions ==="
-[ -x "$(command -v git)" ] && echo "Git: $(git --version | cut -d' ' -f3)"
-[ -x "$(command -v python3)" ] && echo "Python: $(python3 --version | cut -d' ' -f2)"
-[ -x "$(command -v node)" ] && echo "Node.js: $(node --version)"
 
-echo ""
-echo "Script completed successfully!"
+echo "🔧 Software"
+command -v git >/dev/null && echo "Git: $(git --version | cut -d' ' -f3)"
+command -v python3 >/dev/null && echo "Python: $(python3 --version | cut -d' ' -f2)"
+command -v node >/dev/null && echo "Node.js: $(node --version)"
+
+echo "✅ System check completed!"

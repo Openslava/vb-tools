@@ -1,83 +1,84 @@
-# !!! executed from the root of the repository
-
-# !! Prerequisites - Manual Download from Oracle  JDK1.8... and WebLogic 12... !!
-# URL: https://www.oracle.com/qa/middleware/technologies/weblogic-server-downloads.html  
-# URL: https://www.oracle.com/java/technologies/javase-jdk8-doc-downloads.html
-
-# Get the directory where this script is located and navigate to repository root
-# Configuration with defaults (can be overridden)
+<#
+.SYNOPSIS
+    Quick WebLogic setup for WSL
+.PARAMETER distroName
+    WSL distribution name (default: "OracleLinux_8_10")
+.PARAMETER domainName
+    WebLogic domain name (default: "test_domain")
+.PARAMETER adminUser
+    Admin username (default: "admin")
+.PARAMETER adminPassword
+    Admin password (default: "testpwd1")
+.PARAMETER adminPort
+    Admin port (default: 7001)
+.PARAMETER force
+    Forces recreation of domain
+.NOTES
+    Prerequisites: Download JDK 8 and WebLogic 12c to ~/Downloads/
+#>
 [CmdletBinding()]
 param(
     [string]$distroName = "OracleLinux_8_10",
-    [string]$domainName = "test_domain",
+    [string]$domainName = "test_domain", 
     [string]$adminUser = "admin",
-    [string]$adminPassword = "testpwd1",  # Empty means auto-generate
+    [string]$adminPassword = "testpwd1",
     [int]$adminPort = 7001,
-    [switch]$forse
+    [switch]$force
 )
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $repoRoot = Split-Path -Parent $scriptDir
 
-Write-Host "=== WebLogic Quick Setup ==="
-Write-Host "WSL Distribution: $distroName"
-Write-Host "WebLogic Domain: $domainName"
-Write-Host "WebLogic Admin User: $adminUser"
-Write-Host "WebLogic Admin Port: $adminPort"
-Write-Host "WebLogic Admin Password: $adminPassword"
-if ($forse) { Write-Host "Force mode: ENABLED (will recreate domain and update password)" }
-Write-Host ""
+Write-Host "### 00_quick_start.ps1 - Setting up WebLogic on $distroName" -ForegroundColor Cyan
+Write-Host " Domain: $domainName | Port: $adminPort | User: $adminUser" -ForegroundColor Yellow
 
-# ensure WSL is setup  
-Write-Host "Checking WSL distribution: $distroName"
-& "$repoRoot\wsl\01_set_wsl.ps1" -distroName $distroName -forse:$forse
+# Check required Oracle files
+$downloadsPath = "$env:USERPROFILE\Downloads"
+$jdkFile = "$downloadsPath\jdk-8u461-linux-x64.rpm"
+$weblogicFile = "$downloadsPath\fmw_12.2.1.4.0_infrastructure_Disk1_1of1.zip"
 
-# Fix line endings in all bash scripts
-Write-Host "Converting WebLogic script line endings..."
+if (!(Test-Path $jdkFile) -or !(Test-Path $weblogicFile)) {
+    Write-Host "❌ Required Oracle files missing in Downloads folder:" -ForegroundColor Red
+    if (!(Test-Path $jdkFile)) { Write-Host "   Missing: jdk-8u461-linux-x64.rpm" -ForegroundColor Yellow }
+    if (!(Test-Path $weblogicFile)) { Write-Host "   Missing: fmw_12.2.1.4.0_infrastructure_Disk1_1of1.zip" -ForegroundColor Yellow }
+    Write-Host "📥 Download from:" -ForegroundColor Cyan
+    Write-Host "   Oracle JDK 8u461: https://www.oracle.com/java/technologies/javase-jdk8-doc-downloads.html" -ForegroundColor White
+    Write-Host "   WebLogic 12.2.1.4.0: https://www.oracle.com/qa/middleware/technologies/weblogic-server-downloads.html" -ForegroundColor White
+    exit 1
+}
+
+Write-Host "✅ Required Oracle files found" -ForegroundColor Green
+
+# Setup WSL first
+& "$repoRoot\wsl\01_set_wsl.ps1" -distroName $distroName -force:$force
+
+# Install WebLogic
 $wslRepoRoot = (wsl -d $distroName -e wslpath "$repoRoot").Trim()
-wsl -d $distroName -u root -- bash -c "sed -i 's/\r$//' '$wslRepoRoot/weblogic/'*.sh"
+$wsljdkFile = (wsl -d $distroName -e wslpath "$jdkFile").Trim()
+$wslweblogicFile = (wsl -d $distroName -e wslpath "$weblogicFile").Trim()
 
-Write-Host "Starting WebLogic installation..."
+$script = @"
+#!/bin/bash
+set -e
+cd '$wslRepoRoot'
+mkdir -p /opt/oracle/install_files
+cp -v $wsljdkFile /opt/oracle/install_files/
+cp -v $wslweblogicFile /opt/oracle/install_files/
+chmod 644 /opt/oracle/install_files/*
+export DOMAIN_NAME='$domainName'
+export ADMIN_USER='$adminUser'
+export PORT=$adminPort
+export ADMIN_PASSWORD='$adminPassword'
+$(if ($force) { "export FORCE_MODE=true" } else { "export FORCE_MODE=false" })
+./weblogic/01_set_weblogic.sh
+./weblogic/02_set_domain.sh '$domainName'
+./weblogic/03_start_domain.sh '$domainName'
+"@
 
-#  join them with LF line endings to be prepared for Linux
-# Resolve repo root path inside WSL to ensure relative script paths work
-$wslRepoRoot = (wsl -d $distroName -e wslpath "$repoRoot").Trim()
-$commands = @(
-    # Ensure script fails on error
-    "set -e",
-    # work from repo root so relative paths resolve
-    "cd '$wslRepoRoot'",
-    # create install directory
-    "pwd",
-    "mkdir -p /opt/oracle/install_files",
-    # Copy files to WSL and install weblogic from host Downloads folder,
-    "cp -v /mnt/c/Users/$env:USERNAME/Downloads/jdk-8u461-linux-x64.rpm /opt/oracle/install_files/",
-    "cp -v /mnt/c/Users/$env:USERNAME/Downloads/fmw_12.2.1.4.0_infrastructure_Disk1_1of1.zip /opt/oracle/install_files/",
-    # set safe permissions after files are present
-    "chmod 644 /opt/oracle/install_files/*",
-    "ls -la /opt/oracle/install_files/",
-    # WebLogic domain configuration
-    "export DOMAIN_NAME='$domainName'",
-    "export ADMIN_USER='$adminUser'",
-    "export PORT=$adminPort",
-    "export ADMIN_PASSWORD='$adminPassword'",
-    $(if ($forse) { "export FORCE_MODE=true" } else { "export FORCE_MODE=false" }),
-    # Navigate to weblogic scripts directory and run as root, then switch to weblogic user
-    "./weblogic/01_set_weblogic.sh",
-    "./weblogic/02_set_domain.sh '$domainName'"
-)
+$script = $script -replace "`r`n", "`n"
 
-$script = $commands -join "`n"
-
-# run script in WSL as root (Oracle Linux WSL may not have sudo by default)
-Write-Host "Executing WebLogic setup in WSL..."
 wsl -d $distroName -u root -- bash -c "$script"
 
-Write-Host ""
-Write-Host "=== WebLogic Setup Complete ==="
-Write-Host "Admin Console: http://localhost:$adminPort/console"
-Write-Host "Username: $adminUser"
-Write-Host "Password: $adminPassword"
-Write-Host ""
-Write-Host "Domain: $domainName"
-Write-Host "To start in WSL: wsl -d $distroName -- sudo su - weblogic -c '/opt/oracle/middleware//user_projects/domains/$domainName/bin/startWebLogic.sh'"
+Write-Host "✅ WebLogic setup complete!" -ForegroundColor Green
+Write-Host "🌐 Admin Console: http://localhost:$adminPort/console" -ForegroundColor Yellow
+Write-Host "👤 User: $adminUser | Pass: $adminPassword" -ForegroundColor Yellow

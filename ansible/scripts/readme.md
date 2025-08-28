@@ -1,15 +1,19 @@
-# Ansible Example Scripts
+# Ansible Scripts 📜
 
-This directory contains example scripts used by Ansible playbooks.
+Example scripts for Ansible playbooks.
 
-## Scripts
+## 📋 Scripts
 
-- `system-info.sh` - Simple system information gathering script
-  - Used by: `../playbooks/execute-script.yml`
-  - Usage: `./system-info.sh [--env environment]`
-  - Purpose: Demonstrates remote script execution via Ansible
+### system-info.sh
 
-- `install-vscode-portable.sh` - Install VS Code Portable on Windows host
-  - Used by: Standalone script that calls `../playbooks/install-vscode-portable-wsl.yml`
-  - Usage: `./install-vscode-portable.sh [target_directory]`
-  - Purpose: Demonstrates WSL-to-Windows host software installation
+System information gathering script.
+
+- **Used by:** `execute-script.yml`
+- **Usage:** `./system-info.sh [--env environment]`
+
+### install-vscode-portable.sh
+
+VS Code Portable installer for Windows.
+
+- **Used by:** `install-vscode-portable-wsl.yml`
+- **Usage:** `./install-vscode-portable.sh [target_directory]`

@@ -1,105 +1,95 @@
 #!/bin/bash
-set -e
+# Install WebLogic 12c
+# set -e
 
-# WebLogic 12c Installation Script - Simplified Version
-# This script installs WebLogic 12c with basic configuration
-# Prerequisites: Place these files in /opt/oracle/install_files/
-# - jdk-8u461-linux-x64.rpm
-# - fmw_12.2.1.4.0_infrastructure_Disk1_1of1.zip
+echo "### 01_set_weblogic.sh - Installing WebLogic 12c..."
 
-# Check if running as root
-if [ "$EUID" -ne 0 ]; then 
-    echo "Please run as root or with sudo"
+# Check root
+if [ "$EUID" -ne 0 ]; then
+    echo "❌ Must run as root"
     exit 1
 fi
 
-# Environment variables
+# Environment setup
 export ORACLE_BASE="/opt/oracle"
 export ORACLE_HOME="$ORACLE_BASE/middleware"
 export WLS_HOME="$ORACLE_HOME/wlserver"
 export INSTALL_FILES_DIR="$ORACLE_BASE/install_files"
 
-echo "Setting up WebLogic 12c..."
-
-# Short-circuit if already installed (idempotent)
+# Skip if already installed
 if [ -d "$WLS_HOME" ]; then
-    echo "WebLogic already installed at $WLS_HOME. Skipping installation."
+    echo "✅ WebLogic already installed"
     exit 0
 fi
 
-# Create WebLogic Linux user and group
-echo "Creating WebLogic Linux user..."
+
+# Create user and directories
+echo "- Creating weblogic user..."
 groupadd -f weblogic
-useradd -m -g weblogic weblogic 2>/dev/null || echo "User weblogic already exists"
+useradd -m -g weblogic weblogic 2>/dev/null || true
+mkdir -p "$ORACLE_HOME" /opt/oracle/oraInventory
+chown -R weblogic:weblogic "$ORACLE_HOME" /opt/oracle/oraInventory
 
-# Create directories
-echo "Creating directories..."
-mkdir -p "$INSTALL_FILES_DIR"
-mkdir -p "$ORACLE_HOME"
-mkdir -p /opt/oracle/oraInventory
-
-# Set permissions
-chown -R weblogic:weblogic "$ORACLE_HOME"
-chown -R weblogic:weblogic /opt/oracle/oraInventory
-
-# Create oraInst.loc file
+# Setup Oracle inventory
+echo "- Setting up Oracle inventory..."
 cat > /etc/oraInst.loc << EOF
 inventory_loc=/opt/oracle/oraInventory
 inst_group=weblogic
 EOF
+chmod 644 /etc/oraInst.loc
+chown weblogic:weblogic /opt/oracle/oraInventory
 
 # Install prerequisites
-echo "Installing prerequisites..."
+echo "- Installing prerequisites..."
 dnf update -y
 dnf install -y wget unzip glibc-devel gcc libaio fontconfig
 
 # Install Oracle JDK
-echo "Installing Oracle JDK..."
+echo "- Installing Oracle JDK..."
 if [ ! -f "$INSTALL_FILES_DIR/jdk-8u461-linux-x64.rpm" ]; then
-    echo "Error: Oracle JDK RPM not found at $INSTALL_FILES_DIR/jdk-8u461-linux-x64.rpm"
-    echo "Please download and place the file there first"
+    echo "❌ JDK RPM not found: $INSTALL_FILES_DIR/jdk-8u461-linux-x64.rpm"
     exit 1
 fi
 
-if rpm -qa | grep -q "jdk1.8.0_461"; then
-    echo "Oracle JDK already installed, skipping..."
+# Check if JDK is already installed
+if rpm -qa | grep -q "jdk.*1\.8\.0_461"; then
+    echo "✅ Oracle JDK 8u461 already installed"
 else
-    echo "Installing Oracle JDK RPM..."
-    if ! rpm -ivh "$INSTALL_FILES_DIR/jdk-8u461-linux-x64.rpm"; then
-        echo "Error: Failed to install Oracle JDK RPM"
+    echo "- Installing Oracle JDK 8u461..."
+    # Capture both output and exit code
+    rpm_output=$(rpm -ivh "$INSTALL_FILES_DIR/jdk-8u461-linux-x64.rpm" 2>&1)
+    rpm_exit_code=$?
+    
+    if echo "$rpm_output" | grep -q "is already installed"; then
+        echo "✅ Oracle JDK was already installed"
+    elif [ $rpm_exit_code -eq 0 ]; then
+        echo "✅ Oracle JDK installed successfully"
+    else
+        echo "❌ Failed to install Oracle JDK RPM"
+        echo "Error output: $rpm_output"
         exit 1
     fi
 fi
 
-# Set Java environment
-if [ -d "/usr/java/latest" ]; then
-    export JAVA_HOME=/usr/java/latest
-else
-    echo "Error: Oracle JDK installation failed"
-    exit 1
-fi
-
+export JAVA_HOME=/usr/java/latest
 export PATH=$JAVA_HOME/bin:$PATH
-echo "Using Java at: $JAVA_HOME"
-java -version
+echo "✅ Java installed: $(java -version 2>&1 | head -1)"
 
 # Install WebLogic
-echo "Installing WebLogic..."
-WEBLOGIC_INSTALLER="$INSTALL_FILES_DIR/fmw_12.2.1.4.0_infrastructure_Disk1_1of1.zip"
-
-if [ ! -f "$WEBLOGIC_INSTALLER" ]; then
-    echo "Error: WebLogic installer not found at $WEBLOGIC_INSTALLER"
-    echo "Please download and place the file there first"
+echo "- Installing WebLogic..."
+WEBLOGIC_ZIP="$INSTALL_FILES_DIR/fmw_12.2.1.4.0_infrastructure_Disk1_1of1.zip"
+if [ ! -f "$WEBLOGIC_ZIP" ]; then
+    echo "❌ WebLogic ZIP not found: $WEBLOGIC_ZIP"
     exit 1
 fi
 
-# Extract installer
+# Extract and install
 TEMP_DIR="$INSTALL_FILES_DIR/tmp"
 mkdir -p "$TEMP_DIR"
 cd "$TEMP_DIR"
-unzip -q "$WEBLOGIC_INSTALLER"
+unzip -q "$WEBLOGIC_ZIP"
 
-# Create response file
+# Create response file for silent installation
 cat > "$INSTALL_FILES_DIR/wls.rsp" << EOF
 [ENGINE]
 Response File Version=1.0.0.0.0
@@ -108,21 +98,23 @@ ORACLE_HOME=$ORACLE_HOME
 INSTALL_TYPE=Fusion Middleware Infrastructure
 DECLINE_SECURITY_UPDATES=true
 SECURITY_UPDATES_VIA_MYORACLESUPPORT=false
-INVENTORY_LOCATION=/opt/oracle/oraInventory
 EOF
 
-# Install WebLogic
+# Install as weblogic user with proper inventory
+echo "- Running Oracle installer..."
+chown weblogic:weblogic "$INSTALL_FILES_DIR/wls.rsp"
 su - weblogic -c "export JAVA_HOME=$JAVA_HOME && \
-    $JAVA_HOME/bin/java -jar $TEMP_DIR/fmw_12.2.1.4.0_infrastructure.jar -silent -responseFile $INSTALL_FILES_DIR/wls.rsp"
+    export ORACLE_HOME=$ORACLE_HOME && \
+    $JAVA_HOME/bin/java -jar $TEMP_DIR/fmw_12.2.1.4.0_infrastructure.jar \
+    -silent \
+    -responseFile $INSTALL_FILES_DIR/wls.rsp \
+    -invPtrLoc /etc/oraInst.loc"
 
-# Clean up
 rm -rf "$TEMP_DIR"
 
-# Verify installation
 if [ -d "$WLS_HOME" ]; then
-    echo "WebLogic installation completed successfully!"
-    echo "Next step: Run ./02_set_domain.sh to create a domain"
+    echo "✅ WebLogic installation completed!"
 else
-    echo "Error: WebLogic installation failed"
+    echo "❌ WebLogic installation failed"
     exit 1
 fi
