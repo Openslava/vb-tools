@@ -1,0 +1,113 @@
+# Git Attributes Configuration
+# ===========================
+# This file controls how Git handles line endings and file types
+#
+# USAGE INSTRUCTIONS:
+# 1. After adding this file: git add .gitattributes
+# 2. Apply to existing files: git add --renormalize .
+# 3. Commit changes: git commit -m "Configure line endings"
+#
+# LINE ENDING OPTIONS:
+# - text eol=lf    = Always use LF (Unix) line endings
+# - text eol=crlf  = Always use CRLF (Windows) line endings  
+# - text           = Use OS default (CRLF on Windows, LF on Unix/Mac)
+# - text=auto      = Same as 'text' - auto-detect and normalize
+# - binary         = Don't touch - preserve original bytes
+#
+# VERIFICATION COMMANDS:
+# - Check attributes: git check-attr -a filename
+# - Check line endings: git ls-files --eol
+# - Test specific file: git check-attr text eol filename.ext
+
+# Set default behavior to automatically normalize line endings
+* text=auto
+
+# UNIX/LINUX FILES (Always LF - Required for WSL/Linux compatibility)
+# ===================================================================
+# These files MUST use LF line endings to work properly in Unix environments
+
+# Force LF line endings for shell scripts (Unix/Linux compatibility)
+*.sh text eol=lf
+
+# Force LF for other Unix-specific files
+*.bash text eol=lf
+*.py text eol=lf
+Dockerfile text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# WINDOWS FILES (Always CRLF - Required for Windows compatibility)
+# ================================================================
+# These files MUST use CRLF line endings to work properly on Windows
+
+# Force CRLF for Windows-specific files  
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# CROSS-PLATFORM FILES (OS-dependent line endings)
+# =================================================
+# These files adapt to the current OS:
+# - CRLF on Windows (for Notepad, PowerShell compatibility)
+# - LF on Unix/Mac (for consistent Unix tools)
+
+# OS-dependent line endings (CRLF on Windows, LF on Unix/Mac)
+*.ps1 text
+*.txt text
+*.log text
+*.conf text
+*.config text
+*.ini text
+
+# BINARY FILES (No line ending conversion)
+# ========================================
+# These files are preserved exactly as-is to prevent corruption
+
+# Binary files (no line ending conversion)
+*.zip binary
+*.jar binary
+*.war binary
+*.ear binary
+*.rpm binary
+*.deb binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.gz binary
+*.tar binary
+*.tgz binary
+*.7z binary
+*.rar binary
+
+# DOCUMENTATION & CONFIG FILES (OS-dependent)
+# ============================================
+# These adapt to OS conventions for better local tool compatibility
+
+# Documentation files (OS-dependent line endings)
+*.md text
+
+# Configuration files (OS-dependent line endings)  
+*.properties text
+*.json text
+*.xml text
+
+# Certificate files (OS-dependent line endings)
+*.crt text
+*.pem text
+*.key text
+
+# TROUBLESHOOTING:
+# ===============
+# If line endings are wrong after checkout:
+# 1. git rm --cached -r .
+# 2. git reset --hard
+# 3. Files will be re-checked out with correct line endings
+#
+# To check what Git thinks about a file:
+# git check-attr -a path/to/file.ext
