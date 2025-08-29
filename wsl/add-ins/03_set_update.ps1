@@ -36,7 +36,7 @@ $tools = $toolList -split ',' | ForEach-Object { $_.Trim() }
 $missing = Test-Tools $distroName $tools
 
 if (-not $force -and $missing.Count -eq 0) {
-    Write-Host "[OK] All tools installed - no updates needed! Use -force to reinstall" -ForegroundColor Green
+    Write-Host "✅ All tools installed - no updates needed! Use -force to reinstall" -ForegroundColor Green
     exit 0
 }
 
@@ -56,8 +56,19 @@ try {
     $packageList = ($packages | Select-Object -Unique) -join ' '
     
     Write-Host "- Installing: $packageList"
+
     wsl -d $distroName -u root -- bash -c "set -e; $updateCmd; $installCmd $packageList"
-    
+
+    # if failed then add "user_agent-curl/7.61.1" to /etc/yum.conf and try again
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "[WARN] Installation failed, trying workaround..." -ForegroundColor Yellow
+        # add mentioned line only if not present and only for yum
+        if ($updateCmd -eq "yum update -y") {
+            wsl -d $distroName -u root -- bash -c "grep -qxF 'user_agent-curl/7.61.1' /etc/yum.conf || echo 'user_agent-curl/7.61.1' >> /etc/yum.conf"
+        }
+        wsl -d $distroName -u root -- bash -c "set -e; $updateCmd; $installCmd $packageList"
+    }
+
     $stillMissing = Test-Tools $distroName $tools
     if ($stillMissing.Count -eq 0) {
         Write-Host "[SUCCESS] All tools installed successfully!" -ForegroundColor Green

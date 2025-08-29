@@ -59,7 +59,7 @@ if (!(Test-Path $jdkFile) -or !(Test-Path $weblogicFile)) {
     exit 1
 }
 
-Write-Host "[OK] Required Oracle files found" -ForegroundColor Green
+Write-Host "✅ Required Oracle files found" -ForegroundColor Green
 
 # Install WebLogic
 $wslRepoRoot = (wsl -d $distroName -e wslpath "$repoRoot").Trim()

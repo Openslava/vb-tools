@@ -12,7 +12,7 @@ fi
 
 # Check if already installed (unless forced)
 if command -v ansible >/dev/null 2>&1 && [ "$FORCE_MODE" != "true" ]; then
-    echo "[OK] Ansible already installed: $(ansible --version | head -1)"
+    echo "✅ Ansible already installed: $(ansible --version | head -1)"
     exit 0
 fi
 
@@ -53,5 +53,5 @@ cat > /etc/ansible/hosts << 'EOF'
 localhost ansible_connection=local
 EOF
 
-echo "[OK] Ansible installed: $(ansible --version | head -1)"
+echo "✅ Ansible installed: $(ansible --version | head -1)"
 echo "- Test: ansible localhost -m ping"

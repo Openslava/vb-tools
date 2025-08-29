@@ -29,18 +29,22 @@ if (-not (Get-Command wsl -ErrorAction SilentlyContinue)) {
 # Install if missing or forced
 $installedDistros = wsl -l -q
 if (-not ($installedDistros -contains $distroName) -or $force) {
-    Write-Host "- Installing $distroName... (type 'exit' in first console to continue)"
+    Write-Host "- Installing $distroName"
+    Write-Host "###################################################################"
+    Write-Host "# 1.) When prompted type new Username and new password            #"
+    Write-Host "# 2.) then type 'exit' when entering first console to continue    #"
+    Write-Host "###################################################################"
     wsl --install -d $distroName
     wsl -d $distroName --shutdown
     Start-Sleep 5
 } else {
-    Write-Host "[OK] $distroName already installed"
+    Write-Host "✅ $distroName already installed"
 }
 
 # Set as default
 if ($setdefault) {
     wsl --set-default $distroName
-    Write-Host "[OK] Set $distroName as default"
+    Write-Host "✅ Set $distroName as default"
 }
 
 # Convert all sh files in subfolders to Unix line endings using sed

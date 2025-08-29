@@ -44,10 +44,11 @@ if (-not $force) {
     wsl -d $distroName -u root -- bash "$testScript" -d "Testing package manager" 2>$null | Out-Null
     
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "[OK] Package manager working - no certificate installation needed! Use -force to install anyway" -ForegroundColor Green
+        Write-Host "✅ Package manager working - no certificate installation needed! Use -force to install anyway" -ForegroundColor Green
         exit 0
     }
     Write-Host "[ERROR] Package manager failing - installing certificates..." -ForegroundColor Yellow
+
 }
 
 try {

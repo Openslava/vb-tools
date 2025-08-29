@@ -21,11 +21,11 @@ Write-Host "### 00_quick_start.ps1 - Quick Start WSL with $distroName..." -Foreg
 # Configure DNS
 & "$scriptDir\add-ins\02_set_dns.ps1" -distroName $distroName -force:$force
 
-# Update and install tools
-& "$scriptDir\add-ins\03_set_update.ps1" -distroName $distroName -force:$force
-
 # Install CA certificates
 & "$scriptDir\add-ins\04_set_certs.ps1" -distroName $distroName -force:$force
+
+# Update and install tools
+& "$scriptDir\add-ins\03_set_update.ps1" -distroName $distroName -force:$force
 
 Write-Host "[SUCCESS] WSL setup completed!" -ForegroundColor Green
 wsl -l -v

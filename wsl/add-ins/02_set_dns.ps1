@@ -28,7 +28,7 @@ function Test-DNS($distro) {
 
 # Skip if DNS works (unless forced)
 if (-not $force -and (Test-DNS $distroName)) {
-    Write-Host "[OK] DNS working - no changes needed! Use -force to reconfigure" -ForegroundColor Green
+    Write-Host "✅ DNS working - no changes needed! Use -force to reconfigure" -ForegroundColor Green
     exit 0
 }
 
