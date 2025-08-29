@@ -25,11 +25,6 @@ if ($distroName -notin $wslDistros) {
     exit 1
 }
 
-# Convert all sh files in subfolders to Unix line endings using sed
-Write-Host "- Converting .sh files to Unix line endings..."
-$wslAnsibleScriptDir = (wsl -d $distroName -e wslpath "$ansibleScriptDir").Trim()
-wsl -d $distroName -- bash -c "find '$wslAnsibleScriptDir' -name '*.sh' -type f -exec sed -i 's/\r$//' {} \;"
-
 # Install Ansible
 $script = @"
 set -e

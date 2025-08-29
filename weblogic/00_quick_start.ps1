@@ -39,11 +39,6 @@ if ($distroName -notin $wslDistros) {
     exit 1
 }
 
-# Convert all sh files in subfolders to Unix line endings using sed
-Write-Host "- Converting .sh files to Unix line endings..."
-$wslweblogicScriptDir = (wsl -d $distroName -e wslpath "$weblogicScriptDir").Trim()
-wsl -d $distroName -- bash -c "find '$wslweblogicScriptDir' -name '*.sh' -type f -exec sed -i 's/\r$//' {} \;"
-
 # Check required Oracle files
 $downloadsPath = "$env:USERPROFILE\Downloads"
 $jdkFile = "$downloadsPath\jdk-8u461-linux-x64.rpm"

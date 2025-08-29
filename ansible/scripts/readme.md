@@ -2,7 +2,7 @@
 
 Example scripts for Ansible playbooks.
 
-## 📋 Scripts
+## Scripts
 
 ### system-info.sh
 

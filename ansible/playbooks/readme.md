@@ -1,4 +1,4 @@
-# Ansible Playbooks 📋
+# Ansible Playbooks
 
 Simple playbooks for common tasks and Windows management.
 
@@ -36,7 +36,7 @@ ansible-playbook ansible/playbooks/install-vscode-portable-wsl.yml
 
 Features: Downloads to Windows, portable mode, desktop shortcut, no admin required.
 
-## 📋 Examples
+## Examples
 
 ```bash
 # Target specific group

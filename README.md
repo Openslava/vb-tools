@@ -1,4 +1,4 @@
-# VB-Tools 🛠️
+# VB-Tools 
 
 Automation tools for Windows development: WSL, WebLogic, Ansible.
 
@@ -14,13 +14,15 @@ Automation tools for Windows development: WSL, WebLogic, Ansible.
 .\weblogic\00_quick_start.ps1 # WebLogic
 ```
 
+NOTE: files are normalized in repo to LF line endings for consistency across platforms. please see [`.gitattributes`](.gitattributes)
+
 ## Components
 
 - **[WSL](./wsl/readme.md)** - Windows Subsystem for Linux setup
 - **[WebLogic](./weblogic/readme.md)** - Oracle WebLogic automation  
 - **[Ansible](./ansible/readme.md)** - Infrastructure automation
 
-## 📋 Examples
+## Examples
 
 ```powershell
 # Force password reset

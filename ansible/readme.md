@@ -24,7 +24,7 @@ Ansible installation and configuration for WSL/Oracle Linux.
 5. **Collections** - Common Ansible collections pre-installed
 6. **User Setup** - Dedicated ansible user
 
-## 📋 Usage
+## Usage
 
 ```bash
 # Test connection

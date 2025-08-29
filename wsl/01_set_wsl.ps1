@@ -47,10 +47,4 @@ if ($setdefault) {
     Write-Host "[OK] Set $distroName as default" -ForegroundColor Green
 }
 
-# Convert all sh files in subfolders to Unix line endings using sed
-Write-Host "- Converting .sh files to Unix line endings..."
-$wslRepoPath = (wsl -d $distroName -e wslpath "$wslScriptDir").Trim()
-# Convert line endings all .sh files to Unix format in any subdirectory
-wsl -d $distroName -- bash -c "find '$wslRepoPath' -name '*.sh' -type f -exec sed -i 's/\r$//' {} \;"
-
 wsl -l -v
