@@ -25,7 +25,8 @@ if ($distroName -notin $wslDistros) {
     exit 1
 }
 
-# Install Ansible
+# Install Ansible script convert to WSL path
+$wslAnsibleScriptDir = (wsl -d $distroName -e wslpath "$ansibleScriptDir").Trim()
 $script = @"
 set -e
 $(if ($force) { "export FORCE_MODE=true" } else { "export FORCE_MODE=false" })
