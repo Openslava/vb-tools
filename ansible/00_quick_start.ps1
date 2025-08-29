@@ -21,7 +21,7 @@ Write-Host " Domain: $domainName | Port: $adminPort | User: $adminUser" -Foregro
 # check WSL  distro is installed
 $wslDistros = wsl -l -q | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" }
 if ($distroName -notin $wslDistros) {
-    Write-Host "❌ WSL distribution $distroName is not installed. use .\wsl\00_quick_start.ps1"
+    Write-Host "[ERROR] WSL distribution $distroName is not installed. use .\wsl\00_quick_start.ps1"
     Write-Host "Available distributions: $($wslDistros -join ', ')" -ForegroundColor Gray
     exit 1
 }

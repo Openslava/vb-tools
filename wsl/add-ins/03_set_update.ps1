@@ -65,6 +65,6 @@ try {
         Write-Host "⚠️ Some tools still missing: $($stillMissing -join ', ')" -ForegroundColor Yellow
     }
 } catch {
-    Write-Error "❌ Installation failed: $_"
+    Write-Error "[ERROR] Installation failed: $_"
     exit 1
 }

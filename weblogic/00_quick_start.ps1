@@ -43,7 +43,7 @@ Get-ChildItem -Path "$weblogicScriptDir" -Filter "*.sh" -Recurse | ForEach-Objec
 # check WSL  distro is installed
 $wslDistros = wsl -l -q | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" }
 if ($distroName -notin $wslDistros) {
-    Write-Host "❌ WSL distribution $distroName is not installed. use .\wsl\00_quick_start.ps1"
+    Write-Host "[ERROR] WSL distribution $distroName is not installed. use .\wsl\00_quick_start.ps1"
     exit 1
 }
 
@@ -57,7 +57,7 @@ $jdkFile = "$downloadsPath\jdk-8u461-linux-x64.rpm"
 $weblogicFile = "$downloadsPath\fmw_12.2.1.4.0_infrastructure_Disk1_1of1.zip"
 
 if (!(Test-Path $jdkFile) -or !(Test-Path $weblogicFile)) {
-    Write-Host "❌ Required Oracle files missing in Downloads folder:" -ForegroundColor Red
+    Write-Host "[ERROR] Required Oracle files missing in Downloads folder:" -ForegroundColor Red
     if (!(Test-Path $jdkFile)) { Write-Host " Missing: jdk-8u461-linux-x64.rpm" -ForegroundColor Yellow }
     if (!(Test-Path $weblogicFile)) { Write-Host " Missing: fmw_12.2.1.4.0_infrastructure_Disk1_1of1.zip" -ForegroundColor Yellow }
     Write-Host " Download from:" -ForegroundColor Cyan

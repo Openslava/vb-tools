@@ -22,7 +22,7 @@ $wslScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 # Check WSL availability
 if (-not (Get-Command wsl -ErrorAction SilentlyContinue)) {
-    Write-Error "❌ WSL not available. Enable WSL feature and reboot."
+    Write-Error "[ERROR] WSL not available. Enable WSL feature and reboot."
     exit 1
 }
 

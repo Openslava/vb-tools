@@ -6,7 +6,7 @@ echo "### 01_set_weblogic.sh - Installing WebLogic 12c..."
 
 # Check root
 if [ "$EUID" -ne 0 ]; then
-    echo "❌ Must run as root"
+    echo "[ERROR] Must run as root"
     exit 1
 fi
 
@@ -47,7 +47,7 @@ dnf install -y wget unzip glibc-devel gcc libaio fontconfig
 # Install Oracle JDK
 echo "- Installing Oracle JDK..."
 if [ ! -f "$INSTALL_FILES_DIR/jdk-8u461-linux-x64.rpm" ]; then
-    echo "❌ JDK RPM not found: $INSTALL_FILES_DIR/jdk-8u461-linux-x64.rpm"
+    echo "[ERROR] JDK RPM not found: $INSTALL_FILES_DIR/jdk-8u461-linux-x64.rpm"
     exit 1
 fi
 
@@ -65,7 +65,7 @@ else
     elif [ $rpm_exit_code -eq 0 ]; then
         echo "✅ Oracle JDK installed successfully"
     else
-        echo "❌ Failed to install Oracle JDK RPM"
+        echo "[ERROR] Failed to install Oracle JDK RPM"
         echo "Error output: $rpm_output"
         exit 1
     fi
@@ -79,7 +79,7 @@ echo "✅ Java installed: $(java -version 2>&1 | head -1)"
 echo "- Installing WebLogic..."
 WEBLOGIC_ZIP="$INSTALL_FILES_DIR/fmw_12.2.1.4.0_infrastructure_Disk1_1of1.zip"
 if [ ! -f "$WEBLOGIC_ZIP" ]; then
-    echo "❌ WebLogic ZIP not found: $WEBLOGIC_ZIP"
+    echo "[ERROR] WebLogic ZIP not found: $WEBLOGIC_ZIP"
     exit 1
 fi
 
@@ -115,6 +115,6 @@ rm -rf "$TEMP_DIR"
 if [ -d "$WLS_HOME" ]; then
     echo "✅ WebLogic installation completed!"
 else
-    echo "❌ WebLogic installation failed"
+    echo "[ERROR] WebLogic installation failed"
     exit 1
 fi

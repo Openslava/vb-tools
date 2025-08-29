@@ -49,7 +49,7 @@ function Invoke-Vault {
     param([string]$Command)
     
     if (-not (Test-Ansible)) {
-        Write-Error "❌ Ansible not found in WSL. Run: .\00_quick_start.ps1"
+        Write-Error "[ERROR] Ansible not found in WSL. Run: .\00_quick_start.ps1"
         exit 1
     }
     
@@ -81,12 +81,12 @@ if ($Action -eq "help" -or (-not $VaultFile -and $Action -ne "help")) {
 
 # File validation
 if ($Action -in @("edit", "view", "decrypt", "rekey") -and -not (Test-Path $VaultFile)) {
-    Write-Error "❌ File not found: $VaultFile"
+    Write-Error "[ERROR] File not found: $VaultFile"
     exit 1
 }
 
 if ($Action -eq "create" -and (Test-Path $VaultFile) -and -not $Force) {
-    Write-Error "❌ File exists: $VaultFile (use -Force to overwrite)"
+    Write-Error "[ERROR] File exists: $VaultFile (use -Force to overwrite)"
     exit 1
 }
 

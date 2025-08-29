@@ -9,7 +9,7 @@ echo "### 04_set_certs.sh - Installing Windows CA certificates..."
 
 # Check root privileges
 if [[ $EUID -ne 0 ]]; then
-    echo "❌ Must run as root: sudo $0"
+    echo "[ERROR] Must run as root: sudo $0"
     exit 1
 fi
 
@@ -21,7 +21,7 @@ fi
 
 # Test HTTPS first
 echo "- Testing HTTPS connectivity..."
-test_sites=("https://www.microsoft.com" "https://www.google.com")
+test_sites=("https://www.microsoft.com" "https://www.google.com" "https://yum.oracle.com")
 working=0
 for site in "${test_sites[@]}"; do
     if timeout 5 curl -s "$site" >/dev/null 2>&1; then
@@ -38,13 +38,13 @@ fi
 
 # Validate certificate file
 if [[ ! -f "$CERT_FILE" ]]; then
-    echo "❌ Certificate file not found: $CERT_FILE"
+    echo "[ERROR] Certificate file not found: $CERT_FILE"
     exit 1
 fi
 
 cert_count=$(grep -c "BEGIN CERTIFICATE" "$CERT_FILE" 2>/dev/null || echo "0")
 if [[ $cert_count -eq 0 ]]; then
-    echo "❌ No certificates found in file"
+    echo "[ERROR] No certificates found in file"
     exit 1
 fi
 
@@ -61,7 +61,7 @@ if command -v update-ca-trust >/dev/null; then
 elif command -v update-ca-certificates >/dev/null; then
     update-ca-certificates
 else
-    echo "❌ No CA update command found"
+    echo "[ERROR] No CA update command found"
     exit 1
 fi
 

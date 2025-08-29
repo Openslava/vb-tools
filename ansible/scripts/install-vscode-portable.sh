@@ -9,12 +9,12 @@ echo "🚀 Installing VS Code Portable to $PORTABLE_DIR"
 
 # Check dependencies
 if ! command -v ansible-playbook >/dev/null; then
-    echo "❌ Ansible not found. Install: sudo pip install ansible"
+    echo "[ERROR] Ansible not found. Install: sudo pip install ansible"
     exit 1
 fi
 
 if [ ! -f "$PLAYBOOK" ]; then
-    echo "❌ Playbook not found: $PLAYBOOK"
+    echo "[ERROR] Playbook not found: $PLAYBOOK"
     exit 1
 fi
 

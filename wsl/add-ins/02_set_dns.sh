@@ -6,7 +6,7 @@ echo "### 02_set_dns.sh - Setting up DNS for WSL..."
 
 # Check root
 if [ "$EUID" -ne 0 ]; then
-    echo "❌ Must run as root"
+    echo "[ERROR] Must run as root"
     exit 1
 fi
 

@@ -6,7 +6,7 @@ echo "### 01_set_ansible.sh -  Installing Ansible..."
 
 # Check root
 if [ "$EUID" -ne 0 ]; then
-    echo "❌ Must run as root"
+    echo "[ERROR] Must run as root"
     exit 1
 fi
 

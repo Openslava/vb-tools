@@ -61,6 +61,6 @@ try {
         Write-Host "⚠️ DNS setup completed but test failed - try running script again" -ForegroundColor Yellow
     }
 } catch {
-    Write-Error "❌ DNS configuration failed: $_"
+    Write-Error "[ERROR] DNS configuration failed: $_"
     exit 1
 }

@@ -47,7 +47,7 @@ if (-not $force) {
         Write-Host "✅ Package manager working - no certificate installation needed! Use -force to install anyway" -ForegroundColor Green
         exit 0
     }
-    Write-Host "❌ Package manager failing - installing certificates..." -ForegroundColor Yellow
+    Write-Host "[ERROR] Package manager failing - installing certificates..." -ForegroundColor Yellow
 }
 
 try {
@@ -86,6 +86,6 @@ try {
     $bashScript = (wsl -d $distroName -e wslpath "$(Join-Path $scriptDir '04_set_certs.sh')").Trim()
     wsl -d $distroName -u root -- bash "$bashScript" "$wslExportPath"
 } catch {
-    Write-Error "❌ Configuration failed: $_"
+    Write-Error "[ERROR] Configuration failed: $_"
     exit 1
 }

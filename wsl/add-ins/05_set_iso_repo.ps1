@@ -23,7 +23,7 @@ Write-Host "� Setting up ISO repository for $distroName" -ForegroundColor Cyan
 
 # Validate ISO
 if (-not (Test-Path $isoPath)) {
-    Write-Error "❌ ISO not found: $isoPath"
+    Write-Error "[ERROR] ISO not found: $isoPath"
     exit 1
 }
 
@@ -76,6 +76,6 @@ try {
     Write-Host "✅ Setup completed!" -ForegroundColor Green
     Write-Host "- Test: wsl -d $distroName -- yum search kernel" -ForegroundColor Yellow
 } catch {
-    Write-Error "❌ Setup failed: $_"
+    Write-Error "[ERROR] Setup failed: $_"
     exit 1
 }

@@ -18,7 +18,7 @@ fi
 
 # Check domain exists
 if [ ! -d "$DOMAIN_HOME/$DOMAIN_NAME" ]; then
-    echo "❌ Domain $DOMAIN_NAME not found"
+    echo "[ERROR] Domain $DOMAIN_NAME not found"
     exit 1
 fi
 

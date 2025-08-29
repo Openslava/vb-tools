@@ -52,7 +52,7 @@ while [[ $# -gt 0 ]]; do
             exit 0
             ;;
         -*)
-            echo "❌ Unknown option: $1"
+            echo "[ERROR] Unknown option: $1"
             show_usage
             exit 1
             ;;
@@ -65,20 +65,20 @@ done
 
 # Check if running as root
 if [ "$EUID" -ne 0 ]; then
-    echo "❌ This script must be run as root"
+    echo "[ERROR] This script must be run as root"
     echo "Run: sudo $0 $*"
     exit 1
 fi
 
 # Validate ISO path
 if [ -z "$ISO_PATH" ]; then
-    echo "❌ ISO path is required"
+    echo "[ERROR] ISO path is required"
     show_usage
     exit 1
 fi
 
 if [ ! -f "$ISO_PATH" ]; then
-    echo "❌ ISO file not found: $ISO_PATH"
+    echo "[ERROR] ISO file not found: $ISO_PATH"
     echo ""
     echo "💡 Common locations for Windows-mounted ISOs:"
     echo "   /mnt/c/ISOs/"
@@ -110,7 +110,7 @@ mount -o loop,ro "$ISO_PATH" "$MOUNT_POINT"
 
 # Verify mount
 if ! mountpoint -q "$MOUNT_POINT"; then
-    echo "❌ Failed to mount ISO"
+    echo "[ERROR] Failed to mount ISO"
     exit 1
 fi
 
