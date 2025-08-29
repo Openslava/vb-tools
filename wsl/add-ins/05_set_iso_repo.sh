@@ -210,11 +210,11 @@ echo "🧹 Cleaning package cache..."
 yum clean all
 
 # Test repository
-echo "🧪 Testing repository configuration..."
+echo "- Testing repository configuration..."
 yum repolist
 
 # Show available packages
-echo "📦 Sample packages available from ISO:"
+echo "- Sample packages available from ISO:"
 yum list available | head -20
 
 echo ""
@@ -232,7 +232,7 @@ echo "  yum repolist               # List all repositories"
 echo "  yum list available         # List available packages"
 echo ""
 if [ "$REPLACE_REPOS" = true ]; then
-    echo "🔄 To restore original repositories:"
+    echo "- To restore original repositories:"
     echo "  cp $BACKUP_DIR/*.repo /etc/yum.repos.d/"
     echo "  rm /etc/yum.repos.d/local-iso.repo"
     echo ""

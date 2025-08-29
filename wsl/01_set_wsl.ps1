@@ -20,23 +20,20 @@ Write-Host "### 01_set_wsl.ps1 - Setting up WSL with $distroName" -ForegroundCol
 
 $wslScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
-# Convert all sh files in subfolders to Unix line endings using PowerShell
-Get-ChildItem -Path "$wslScriptDir" -Filter "*.sh" -Recurse | ForEach-Object {
-    $content = Get-Content $_.FullName -Raw
-    $content = $content -replace "`r`n", "`n"
-    Set-Content $_.FullName -Value $content -NoNewline
-}
-
 # Check WSL availability
 if (-not (Get-Command wsl -ErrorAction SilentlyContinue)) {
     Write-Error "❌ WSL not available. Enable WSL feature and reboot."
     exit 1
 }
 
+# Convert all sh files in subfolders to Unix line endings using sed
+Write-Host "- Converting .sh files to Unix line endings..."
+wsl -d $distroName -- bash -c "find '$wslScriptDir' -name '*.sh' -type f -exec sed -i 's/\r$//' {} \;"
+
 # Install if missing or forced
 $installedDistros = wsl -l -q
 if (-not ($installedDistros -contains $distroName) -or $force) {
-    Write-Host "📦 Installing $distroName... (type 'exit' in first console to continue)"
+    Write-Host "- Installing $distroName... (type 'exit' in first console to continue)"
     wsl --install -d $distroName
     wsl -d $distroName --shutdown
     Start-Sleep 5
@@ -51,11 +48,11 @@ if ($setdefault) {
 }
 
 # Convert all sh files in subfolders to Unix line endings using sed
-Write-Host "🔄 Converting .sh files to Unix line endings..."
+Write-Host "- Converting .sh files to Unix line endings..."
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $repoRoot = Split-Path -Parent $scriptDir
 $wslRepoPath = (wsl -d $distroName -e wslpath "$repoRoot").Trim()
-
+# Convert line endings all .sh files to Unix format in any subdirectory
 wsl -d $distroName -- bash -c "find '$wslRepoPath' -name '*.sh' -type f -exec sed -i 's/\r$//' {} \;"
 
 wsl -l -v

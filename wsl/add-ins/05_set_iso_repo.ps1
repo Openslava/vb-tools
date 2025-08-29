@@ -74,7 +74,7 @@ echo "✅ ISO repository ready!"
 try {
     wsl -d $distroName -u root -- bash -c "$script"
     Write-Host "✅ Setup completed!" -ForegroundColor Green
-    Write-Host "🧪 Test: wsl -d $distroName -- yum search kernel" -ForegroundColor Yellow
+    Write-Host "- Test: wsl -d $distroName -- yum search kernel" -ForegroundColor Yellow
 } catch {
     Write-Error "❌ Setup failed: $_"
     exit 1

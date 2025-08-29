@@ -47,6 +47,10 @@ if ($distroName -notin $wslDistros) {
     exit 1
 }
 
+# Convert all sh files in subfolders to Unix line endings using sed
+Write-Host "- Converting .sh files to Unix line endings..."
+wsl -d $distroName -- bash -c "find '$wslScriptDir' -name '*.sh' -type f -exec sed -i 's/\r$//' {} \;"
+
 # Check required Oracle files
 $downloadsPath = "$env:USERPROFILE\Downloads"
 $jdkFile = "$downloadsPath\jdk-8u461-linux-x64.rpm"
@@ -54,11 +58,11 @@ $weblogicFile = "$downloadsPath\fmw_12.2.1.4.0_infrastructure_Disk1_1of1.zip"
 
 if (!(Test-Path $jdkFile) -or !(Test-Path $weblogicFile)) {
     Write-Host "❌ Required Oracle files missing in Downloads folder:" -ForegroundColor Red
-    if (!(Test-Path $jdkFile)) { Write-Host "   Missing: jdk-8u461-linux-x64.rpm" -ForegroundColor Yellow }
-    if (!(Test-Path $weblogicFile)) { Write-Host "   Missing: fmw_12.2.1.4.0_infrastructure_Disk1_1of1.zip" -ForegroundColor Yellow }
-    Write-Host "📥 Download from:" -ForegroundColor Cyan
-    Write-Host "   Oracle JDK 8u461: https://www.oracle.com/java/technologies/javase-jdk8-doc-downloads.html" -ForegroundColor White
-    Write-Host "   WebLogic 12.2.1.4.0: https://www.oracle.com/qa/middleware/technologies/weblogic-server-downloads.html" -ForegroundColor White
+    if (!(Test-Path $jdkFile)) { Write-Host " Missing: jdk-8u461-linux-x64.rpm" -ForegroundColor Yellow }
+    if (!(Test-Path $weblogicFile)) { Write-Host " Missing: fmw_12.2.1.4.0_infrastructure_Disk1_1of1.zip" -ForegroundColor Yellow }
+    Write-Host " Download from:" -ForegroundColor Cyan
+    Write-Host " Oracle JDK 8u461: https://www.oracle.com/java/technologies/javase-jdk8-doc-downloads.html" -ForegroundColor White
+    Write-Host " WebLogic 12.2.1.4.0: https://www.oracle.com/qa/middleware/technologies/weblogic-server-downloads.html" -ForegroundColor White
     exit 1
 }
 

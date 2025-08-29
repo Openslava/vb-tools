@@ -17,7 +17,7 @@ if command -v ansible >/dev/null 2>&1 && [ "$FORCE_MODE" != "true" ]; then
 fi
 
 # Install dependencies
-echo "📦 Installing dependencies..."
+echo "- Installing dependencies..."
 dnf update -y
 dnf install -y python39 python39-pip python39-devel gcc git
 
@@ -54,4 +54,4 @@ localhost ansible_connection=local
 EOF
 
 echo "✅ Ansible installed: $(ansible --version | head -1)"
-echo "🧪 Test: ansible localhost -m ping"
+echo "- Test: ansible localhost -m ping"
