@@ -12,13 +12,26 @@ param(
     [switch]$force
 )
 
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$repoRoot = Split-Path -Parent $scriptDir
+$weblogicScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$repoRoot = Split-Path -Parent $weblogicScriptDir
 
-Write-Host "🚀 Setting up Ansible in $distroName" -ForegroundColor Cyan
+Write-Host "### 00_quick_start.ps1 - Setting up Ansible on $distroName" -ForegroundColor Cyan
+Write-Host " Domain: $domainName | Port: $adminPort | User: $adminUser" -ForegroundColor Yellow
 
-# Setup WSL first
-& "$repoRoot\wsl\01_set_wsl.ps1" -distroName $distroName -force:$force
+# Convert all sh files in subfolders to Unix line endings using PowerShell
+Get-ChildItem -Path "$weblogicScriptDir" -Filter "*.sh" -Recurse | ForEach-Object {
+    $content = Get-Content $_.FullName -Raw
+    $content = $content -replace "`r`n", "`n"
+    Set-Content $_.FullName -Value $content -NoNewline
+}
+
+# check WSL  distro is installed
+$wslDistros = wsl -l -q | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" }
+if ($distroName -notin $wslDistros) {
+    Write-Host "❌ WSL distribution $distroName is not installed. use .\wsl\00_quick_start.ps1"
+    Write-Host "Available distributions: $($wslDistros -join ', ')" -ForegroundColor Gray
+    exit 1
+}
 
 # Install Ansible
 $wslRepoRoot = (wsl -d $distroName -e wslpath "$repoRoot").Trim()

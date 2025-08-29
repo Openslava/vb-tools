@@ -13,7 +13,6 @@ param(
 )
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
-
 Write-Host "### 00_quick_start.ps1 - Quick Start WSL with $distroName..." -ForegroundColor Cyan
 
 # Install WSL distribution

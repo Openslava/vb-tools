@@ -5,7 +5,7 @@ set -e
 CERT_FILE="${1:-/tmp/windows-ca-certificates.crt}"
 CERT_DIR="/etc/pki/ca-trust/source/anchors"
 
-echo "🔐 Installing Windows CA certificates..."
+echo "### 04_set_certs.sh - Installing Windows CA certificates..."
 
 # Check root privileges
 if [[ $EUID -ne 0 ]]; then
@@ -15,12 +15,12 @@ fi
 
 # Install ca-certificates package
 if ! rpm -q ca-certificates >/dev/null 2>&1; then
-    echo "📦 Installing ca-certificates..."
+    echo "- Installing ca-certificates..."
     if command -v dnf >/dev/null; then dnf install -y ca-certificates; else yum install -y ca-certificates; fi
 fi
 
 # Test HTTPS first
-echo "🌐 Testing HTTPS connectivity..."
+echo "- Testing HTTPS connectivity..."
 test_sites=("https://www.microsoft.com" "https://www.google.com")
 working=0
 for site in "${test_sites[@]}"; do
@@ -48,7 +48,7 @@ if [[ $cert_count -eq 0 ]]; then
     exit 1
 fi
 
-echo "📤 Installing $cert_count certificates..."
+echo "- Installing $cert_count certificates..."
 
 # Install certificates
 mkdir -p "$CERT_DIR"
@@ -66,7 +66,7 @@ else
 fi
 
 # Test again
-echo "🧪 Re-testing HTTPS..."
+echo "- Re-testing HTTPS..."
 working=0
 for site in "${test_sites[@]}"; do
     if timeout 5 curl -s "$site" >/dev/null 2>&1; then
@@ -75,4 +75,4 @@ for site in "${test_sites[@]}"; do
     fi
 done
 
-echo "🎉 Completed! HTTPS tests: $working/${#test_sites[@]} working"
+echo "✅ Completed! HTTPS tests: $working/${#test_sites[@]} working"

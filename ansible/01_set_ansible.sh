@@ -2,7 +2,7 @@
 # Install Ansible on Oracle Linux/WSL
 set -e
 
-echo "🚀 Installing Ansible..."
+echo "### 01_set_ansible.sh -  Installing Ansible..."
 
 # Check root
 if [ "$EUID" -ne 0 ]; then

@@ -52,7 +52,7 @@ if (-not $force) {
 
 try {
     # Export certificates from Windows stores
-    Write-Host "📤 Exporting certificates..." -ForegroundColor Yellow
+    Write-Host "- Exporting certificates..." -ForegroundColor Yellow
     $allCerts = @()
     $allCerts += Get-ChildItem Cert:\LocalMachine\Root | Where-Object { $_.HasPrivateKey -eq $false -and $_.NotAfter -gt (Get-Date) }
     $allCerts += Get-ChildItem Cert:\CurrentUser\Root -ErrorAction SilentlyContinue | Where-Object { $_.HasPrivateKey -eq $false -and $_.NotAfter -gt (Get-Date) }

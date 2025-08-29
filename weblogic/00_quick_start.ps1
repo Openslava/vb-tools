@@ -26,11 +26,26 @@ param(
     [switch]$force
 )
 
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$repoRoot = Split-Path -Parent $scriptDir
+$weblogicScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$repoRoot = Split-Path -Parent $weblogicScriptDir
 
 Write-Host "### 00_quick_start.ps1 - Setting up WebLogic on $distroName" -ForegroundColor Cyan
 Write-Host " Domain: $domainName | Port: $adminPort | User: $adminUser" -ForegroundColor Yellow
+
+
+# Convert all sh files in subfolders to Unix line endings using PowerShell
+Get-ChildItem -Path "$weblogicScriptDir" -Filter "*.sh" -Recurse | ForEach-Object {
+    $content = Get-Content $_.FullName -Raw
+    $content = $content -replace "`r`n", "`n"
+    Set-Content $_.FullName -Value $content -NoNewline
+}
+
+# check WSL  distro is installed
+$wslDistros = wsl -l -q | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" }
+if ($distroName -notin $wslDistros) {
+    Write-Host "❌ WSL distribution $distroName is not installed. use .\wsl\00_quick_start.ps1"
+    exit 1
+}
 
 # Check required Oracle files
 $downloadsPath = "$env:USERPROFILE\Downloads"
@@ -48,9 +63,6 @@ if (!(Test-Path $jdkFile) -or !(Test-Path $weblogicFile)) {
 }
 
 Write-Host "✅ Required Oracle files found" -ForegroundColor Green
-
-# Setup WSL first
-& "$repoRoot\wsl\01_set_wsl.ps1" -distroName $distroName -force:$force
 
 # Install WebLogic
 $wslRepoRoot = (wsl -d $distroName -e wslpath "$repoRoot").Trim()

@@ -3,7 +3,7 @@ set -e
 
 # WebLogic Domain Creation Script - Simplified Version
 # This script creates a WebLogic domain with basic configuration
-echo "02_set_domain.sh - Starting WebLogic Domain Creation"
+echo "### 02_set_domain.sh - Starting WebLogic Domain Creation"
 
 # Set environment variables
 export ORACLE_BASE="/opt/oracle"
