@@ -27,5 +27,5 @@ Write-Host "### 00_quick_start.ps1 - Quick Start WSL with $distroName..." -Foreg
 # Install CA certificates
 & "$scriptDir\add-ins\04_set_certs.ps1" -distroName $distroName -force:$force
 
-Write-Host "✅ WSL setup completed!" -ForegroundColor Green
+Write-Host "[SUCCESS] WSL setup completed!" -ForegroundColor Green
 wsl -l -v

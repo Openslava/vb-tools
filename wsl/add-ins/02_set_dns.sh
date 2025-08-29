@@ -34,4 +34,4 @@ for server in $(echo "$dns_servers" | tr ',' ' '); do
     echo "nameserver $server" >> /etc/resolv.conf
 done
 
-echo "✅ DNS configured: $dns_servers"
+echo "[SUCCESS] DNS configured: $dns_servers"

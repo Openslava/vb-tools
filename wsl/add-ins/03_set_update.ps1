@@ -36,7 +36,7 @@ $tools = $toolList -split ',' | ForEach-Object { $_.Trim() }
 $missing = Test-Tools $distroName $tools
 
 if (-not $force -and $missing.Count -eq 0) {
-    Write-Host "✅ All tools installed - no updates needed! Use -force to reinstall" -ForegroundColor Green
+    Write-Host "[OK] All tools installed - no updates needed! Use -force to reinstall" -ForegroundColor Green
     exit 0
 }
 
@@ -60,9 +60,9 @@ try {
     
     $stillMissing = Test-Tools $distroName $tools
     if ($stillMissing.Count -eq 0) {
-        Write-Host "✅ All tools installed successfully!" -ForegroundColor Green
+        Write-Host "[SUCCESS] All tools installed successfully!" -ForegroundColor Green
     } else {
-        Write-Host "⚠️ Some tools still missing: $($stillMissing -join ', ')" -ForegroundColor Yellow
+        Write-Host "[WARN] Some tools still missing: $($stillMissing -join ', ')" -ForegroundColor Yellow
     }
 } catch {
     Write-Error "[ERROR] Installation failed: $_"

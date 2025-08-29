@@ -12,8 +12,7 @@ param(
     [switch]$force
 )
 
-$weblogicScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$repoRoot = Split-Path -Parent $weblogicScriptDir
+$ansibleScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 Write-Host "### 00_quick_start.ps1 - Setting up Ansible on $distroName" -ForegroundColor Cyan
 Write-Host " Domain: $domainName | Port: $adminPort | User: $adminUser" -ForegroundColor Yellow
@@ -28,17 +27,17 @@ if ($distroName -notin $wslDistros) {
 
 # Convert all sh files in subfolders to Unix line endings using sed
 Write-Host "- Converting .sh files to Unix line endings..."
-wsl -d $distroName -- bash -c "find '$wslScriptDir' -name '*.sh' -type f -exec sed -i 's/\r$//' {} \;"
+$wslAnsibleScriptDir = (wsl -d $distroName -e wslpath "$ansibleScriptDir").Trim()
+wsl -d $distroName -- bash -c "find '$wslAnsibleScriptDir' -name '*.sh' -type f -exec sed -i 's/\r$//' {} \;"
 
 # Install Ansible
-$wslRepoRoot = (wsl -d $distroName -e wslpath "$repoRoot").Trim()
 $script = @"
 set -e
 $(if ($force) { "export FORCE_MODE=true" } else { "export FORCE_MODE=false" })
-$wslRepoRoot/ansible/01_set_ansible.sh
+$wslAnsibleScriptDir/01_set_ansible.sh
 "@
 
 wsl -d $distroName -u root -- bash -c "$script"
 
-Write-Host "✅ Ansible setup complete!" -ForegroundColor Green
+Write-Host "[SUCCESS] Ansible setup complete!" -ForegroundColor Green
 Write-Host "- Test: wsl -d $distroName -- ansible --version" -ForegroundColor Yellow

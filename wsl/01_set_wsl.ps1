@@ -26,10 +26,6 @@ if (-not (Get-Command wsl -ErrorAction SilentlyContinue)) {
     exit 1
 }
 
-# Convert all sh files in subfolders to Unix line endings using sed
-Write-Host "- Converting .sh files to Unix line endings..."
-wsl -d $distroName -- bash -c "find '$wslScriptDir' -name '*.sh' -type f -exec sed -i 's/\r$//' {} \;"
-
 # Install if missing or forced
 $installedDistros = wsl -l -q
 if (-not ($installedDistros -contains $distroName) -or $force) {
@@ -38,20 +34,18 @@ if (-not ($installedDistros -contains $distroName) -or $force) {
     wsl -d $distroName --shutdown
     Start-Sleep 5
 } else {
-    Write-Host "✅ $distroName already installed"
+    Write-Host "[OK] $distroName already installed"
 }
 
 # Set as default
 if ($setdefault) {
     wsl --set-default $distroName
-    Write-Host "✅ Set $distroName as default"
+    Write-Host "[OK] Set $distroName as default"
 }
 
 # Convert all sh files in subfolders to Unix line endings using sed
 Write-Host "- Converting .sh files to Unix line endings..."
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$repoRoot = Split-Path -Parent $scriptDir
-$wslRepoPath = (wsl -d $distroName -e wslpath "$repoRoot").Trim()
+$wslRepoPath = (wsl -d $distroName -e wslpath "$wslScriptDir").Trim()
 # Convert line endings all .sh files to Unix format in any subdirectory
 wsl -d $distroName -- bash -c "find '$wslRepoPath' -name '*.sh' -type f -exec sed -i 's/\r$//' {} \;"
 

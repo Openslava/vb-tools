@@ -32,14 +32,6 @@ $repoRoot = Split-Path -Parent $weblogicScriptDir
 Write-Host "### 00_quick_start.ps1 - Setting up WebLogic on $distroName" -ForegroundColor Cyan
 Write-Host " Domain: $domainName | Port: $adminPort | User: $adminUser" -ForegroundColor Yellow
 
-
-# Convert all sh files in subfolders to Unix line endings using PowerShell
-Get-ChildItem -Path "$weblogicScriptDir" -Filter "*.sh" -Recurse | ForEach-Object {
-    $content = Get-Content $_.FullName -Raw
-    $content = $content -replace "`r`n", "`n"
-    Set-Content $_.FullName -Value $content -NoNewline
-}
-
 # check WSL  distro is installed
 $wslDistros = wsl -l -q | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" }
 if ($distroName -notin $wslDistros) {
@@ -49,7 +41,8 @@ if ($distroName -notin $wslDistros) {
 
 # Convert all sh files in subfolders to Unix line endings using sed
 Write-Host "- Converting .sh files to Unix line endings..."
-wsl -d $distroName -- bash -c "find '$wslScriptDir' -name '*.sh' -type f -exec sed -i 's/\r$//' {} \;"
+$wslweblogicScriptDir = (wsl -d $distroName -e wslpath "$weblogicScriptDir").Trim()
+wsl -d $distroName -- bash -c "find '$wslweblogicScriptDir' -name '*.sh' -type f -exec sed -i 's/\r$//' {} \;"
 
 # Check required Oracle files
 $downloadsPath = "$env:USERPROFILE\Downloads"
@@ -66,7 +59,7 @@ if (!(Test-Path $jdkFile) -or !(Test-Path $weblogicFile)) {
     exit 1
 }
 
-Write-Host "✅ Required Oracle files found" -ForegroundColor Green
+Write-Host "[OK] Required Oracle files found" -ForegroundColor Green
 
 # Install WebLogic
 $wslRepoRoot = (wsl -d $distroName -e wslpath "$repoRoot").Trim()
@@ -95,6 +88,6 @@ $script = $script -replace "`r`n", "`n"
 
 wsl -d $distroName -u root -- bash -c "$script"
 
-Write-Host "✅ WebLogic setup complete!" -ForegroundColor Green
-Write-Host "🌐 Admin Console: http://localhost:$adminPort/console" -ForegroundColor Yellow
-Write-Host "👤 User: $adminUser | Pass: $adminPassword" -ForegroundColor Yellow
+Write-Host "[SUCCESS] WebLogic setup complete!" -ForegroundColor Green
+Write-Host "[URL] Admin Console: http://localhost:$adminPort/console" -ForegroundColor Yellow
+Write-Host "[AUTH] User: $adminUser | Pass: $adminPassword" -ForegroundColor Yellow

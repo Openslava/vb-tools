@@ -44,7 +44,7 @@ if (-not $force) {
     wsl -d $distroName -u root -- bash "$testScript" -d "Testing package manager" 2>$null | Out-Null
     
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "✅ Package manager working - no certificate installation needed! Use -force to install anyway" -ForegroundColor Green
+        Write-Host "[OK] Package manager working - no certificate installation needed! Use -force to install anyway" -ForegroundColor Green
         exit 0
     }
     Write-Host "[ERROR] Package manager failing - installing certificates..." -ForegroundColor Yellow
@@ -79,7 +79,7 @@ try {
     
     # Write and install certificates
     $pemContent | Out-File -FilePath $exportPath -Encoding utf8
-    Write-Host "✅ Exported $($uniqueCerts.Count) certificates" -ForegroundColor Green
+    Write-Host "[SUCCESS] Exported $($uniqueCerts.Count) certificates" -ForegroundColor Green
     
     # Install certificates directly from current location
     $wslExportPath = (wsl -d $distroName -e wslpath "$exportPath").Trim()

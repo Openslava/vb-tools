@@ -28,7 +28,7 @@ function Test-DNS($distro) {
 
 # Skip if DNS works (unless forced)
 if (-not $force -and (Test-DNS $distroName)) {
-    Write-Host "✅ DNS working - no changes needed! Use -force to reconfigure" -ForegroundColor Green
+    Write-Host "[OK] DNS working - no changes needed! Use -force to reconfigure" -ForegroundColor Green
     exit 0
 }
 
@@ -56,9 +56,9 @@ try {
     Start-Sleep 2
     
     if (Test-DNS $distroName) {
-        Write-Host "✅ DNS configured successfully!" -ForegroundColor Green
+        Write-Host "[SUCCESS] DNS configured successfully!" -ForegroundColor Green
     } else {
-        Write-Host "⚠️ DNS setup completed but test failed - try running script again" -ForegroundColor Yellow
+        Write-Host "[WARN] DNS setup completed but test failed - try running script again" -ForegroundColor Yellow
     }
 } catch {
     Write-Error "[ERROR] DNS configuration failed: $_"

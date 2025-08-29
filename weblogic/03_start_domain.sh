@@ -2,7 +2,7 @@
 # Start WebLogic domain
 # set -e
 
-echo "🚀 Starting WebLogic domain..."
+echo "[START] Starting WebLogic domain..."
 
 # Environment setup
 export ORACLE_BASE="/opt/oracle"
@@ -12,7 +12,7 @@ export ADMIN_PORT="7001"
 
 # Switch to weblogic user if running as root
 if [ "$(id -un)" != "weblogic" ] && [ "$EUID" -eq 0 ]; then
-    echo "👤 Switching to weblogic user..."
+    echo "[USER] Switching to weblogic user..."
     exec su - weblogic -c "$(readlink -f "$0") $*"
 fi
 
