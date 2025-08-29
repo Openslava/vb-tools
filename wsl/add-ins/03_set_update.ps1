@@ -55,7 +55,7 @@ try {
     }
     $packageList = ($packages | Select-Object -Unique) -join ' '
     
-    Write-Host "� Installing: $packageList"
+    Write-Host "- Installing: $packageList"
     wsl -d $distroName -u root -- bash -c "set -e; $updateCmd; $installCmd $packageList"
     
     $stillMissing = Test-Tools $distroName $tools

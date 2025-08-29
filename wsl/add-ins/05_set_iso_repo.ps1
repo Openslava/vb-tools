@@ -19,7 +19,7 @@ param(
     [switch]$permanent
 )
 
-Write-Host "� Setting up ISO repository for $distroName" -ForegroundColor Cyan
+Write-Host "- Setting up ISO repository for $distroName" -ForegroundColor Cyan
 
 # Validate ISO
 if (-not (Test-Path $isoPath)) {

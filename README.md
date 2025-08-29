@@ -32,6 +32,6 @@ Automation tools for Windows development: WSL, WebLogic, Ansible.
 cd weblogic/sample && mvn clean package
 ```
 
-## � License
+## - License
 
 MIT License - see [LICENSE](LICENSE)

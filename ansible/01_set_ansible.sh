@@ -12,7 +12,7 @@ fi
 
 # Check if already installed (unless forced)
 if command -v ansible >/dev/null 2>&1 && [ "$FORCE_MODE" != "true" ]; then
-    echo "✅ Ansible already installed: $(ansible --version | head -1)"
+    echo "[OK] Ansible already installed: $(ansible --version | head -1)"
     exit 0
 fi
 
@@ -26,7 +26,7 @@ alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 1
 alternatives --install /usr/bin/pip3 pip3 /usr/bin/pip3.9 1
 
 # Install Ansible
-echo "📤 Installing Ansible..."
+echo "- Installing Ansible..."
 python3.9 -m pip install --upgrade pip
 if [ "$FORCE_MODE" = "true" ]; then
     python3.9 -m pip install --upgrade --force-reinstall ansible
@@ -35,7 +35,7 @@ else
 fi
 
 # Install common collections
-echo "📋 Installing collections..."
+echo "- Installing collections..."
 ansible-galaxy collection install community.general ansible.posix
 
 # Create basic config
@@ -53,5 +53,5 @@ cat > /etc/ansible/hosts << 'EOF'
 localhost ansible_connection=local
 EOF
 
-echo "✅ Ansible installed: $(ansible --version | head -1)"
+echo "[OK] Ansible installed: $(ansible --version | head -1)"
 echo "- Test: ansible localhost -m ping"

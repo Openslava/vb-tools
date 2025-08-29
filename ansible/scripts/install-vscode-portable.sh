@@ -22,4 +22,4 @@ fi
 ansible-playbook "$PLAYBOOK" -e "vscode_portable_dir=/mnt/c/Tools/VSCode-Portable" -v
 
 echo "✅ Installation completed!"
-echo "� Start: /mnt/c/Tools/VSCode-Portable/Code.exe"
+echo "- Start: /mnt/c/Tools/VSCode-Portable/Code.exe"
