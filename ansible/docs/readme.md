@@ -14,7 +14,7 @@ Guides and templates for Ansible automation.
 - **deploy-project.sh.template** - Deployment script template
 - **vault-example.yml** - Vault file structure example
 
-## 🔧 Usage
+## - Usage
 
 ```bash
 # Copy templates to your project

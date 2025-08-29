@@ -14,9 +14,9 @@ echo "CPU: $(nproc) cores | Memory: $(free -h | grep Mem | awk '{print $3 "/" $2
 echo "Disk: $(df -h / | tail -1 | awk '{print $5 " used"}')"
 echo ""
 
-echo "🔧 Software"
+echo "- Software"
 command -v git >/dev/null && echo "Git: $(git --version | cut -d' ' -f3)"
 command -v python3 >/dev/null && echo "Python: $(python3 --version | cut -d' ' -f2)"
 command -v node >/dev/null && echo "Node.js: $(node --version)"
 
-echo "✅ System check completed!"
+echo "[OK] System check completed!"

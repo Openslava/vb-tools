@@ -36,10 +36,9 @@ set -e
 $(if ($force) { "export FORCE_MODE=true" } else { "export FORCE_MODE=false" })
 $wslAnsibleScriptDir/01_set_ansible.sh
 "@
-
 # convert line endings
-$script = $script -replace '\r\n', '\n'
-
+$script = $script -replace "`r`n", "`n" -replace "`r", "`n"
+# executre
 wsl -d $distroName -u root -- bash -c "$script"
 
 Write-Host "[SUCCESS] Ansible setup complete!" -ForegroundColor Green

@@ -23,7 +23,7 @@ param(
 )
 
 function Show-Help {
-    Write-Host "🔐 Ansible Vault Helper" -ForegroundColor Cyan
+    Write-Host "- Ansible Vault Helper" -ForegroundColor Cyan
     Write-Host "Usage: .\vault-helper.ps1 <action> <vault-file> [options]" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "Actions:" -ForegroundColor Green
@@ -69,7 +69,7 @@ function Invoke-Vault {
         $cmd += " --vault-password-file '$($wslPass.ToLower())'"
     }
     
-    Write-Host "🔧 $cmd" -ForegroundColor Cyan
+    Write-Host "- $cmd" -ForegroundColor Cyan
     wsl -e bash -c $cmd
 }
 
@@ -90,5 +90,5 @@ if ($Action -eq "create" -and (Test-Path $VaultFile) -and -not $Force) {
     exit 1
 }
 
-Write-Host "🔐 $Action`: $VaultFile" -ForegroundColor Green
+Write-Host "- $Action`: $VaultFile" -ForegroundColor Green
 Invoke-Vault $Action

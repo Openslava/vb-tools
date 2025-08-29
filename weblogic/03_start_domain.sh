@@ -24,13 +24,13 @@ fi
 
 # Check if already running
 if pgrep -f "Dweblogic.Name=AdminServer.*$DOMAIN_NAME" >/dev/null; then
-    echo "✅ Domain $DOMAIN_NAME already running"
-    echo "🌐 Console: http://localhost:$ADMIN_PORT/console"
+    echo "[OK] Domain $DOMAIN_NAME already running"
+    echo "[-] Console: http://localhost:$ADMIN_PORT/console"
     exit 0
 fi
 
 # Start WebLogic
-echo "🔧 Starting domain $DOMAIN_NAME..."
+echo "- Starting domain $DOMAIN_NAME..."
 cd "$DOMAIN_HOME/$DOMAIN_NAME"
-echo "🌐 Admin console will be at: http://localhost:$ADMIN_PORT/console"
+echo "[-] Admin console will be at: http://localhost:$ADMIN_PORT/console"
 exec ./bin/startWebLogic.sh

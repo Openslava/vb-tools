@@ -54,12 +54,12 @@ if (!(Test-Path $jdkFile) -or !(Test-Path $weblogicFile)) {
     if (!(Test-Path $jdkFile)) { Write-Host " Missing: jdk-8u461-linux-x64.rpm" -ForegroundColor Yellow }
     if (!(Test-Path $weblogicFile)) { Write-Host " Missing: fmw_12.2.1.4.0_infrastructure_Disk1_1of1.zip" -ForegroundColor Yellow }
     Write-Host " Download from:" -ForegroundColor Cyan
-    Write-Host " Oracle JDK 8u461: https://www.oracle.com/java/technologies/javase-jdk8-doc-downloads.html" -ForegroundColor White
+    Write-Host " Oracle JDK 8u461: https://www.oracle.com/java/technologies/downloads/#java8" -ForegroundColor White
     Write-Host " WebLogic 12.2.1.4.0: https://www.oracle.com/qa/middleware/technologies/weblogic-server-downloads.html" -ForegroundColor White
     exit 1
 }
 
-Write-Host "✅ Required Oracle files found" -ForegroundColor Green
+Write-Host "[OK] Required Oracle files found" -ForegroundColor Green
 
 # Install WebLogic
 $wslRepoRoot = (wsl -d $distroName -e wslpath "$repoRoot").Trim()
@@ -84,8 +84,7 @@ $(if ($force) { "export FORCE_MODE=true" } else { "export FORCE_MODE=false" })
 ./weblogic/03_start_domain.sh '$domainName'
 "@
 
-$script = $script -replace "`r`n", "`n"
-
+$script = $script -replace "`r`n", "`n" -replace "`r", "`n"
 wsl -d $distroName -u root -- bash -c "$script"
 
 Write-Host "[SUCCESS] WebLogic setup complete!" -ForegroundColor Green

@@ -123,14 +123,14 @@
     - name: Display installation summary
       debug:
         msg: |
-          🎉 VS Code Portable Installation Complete!
+          VS Code Portable Installation Complete!
           
-          📁 Installation Directory: C:\Tools\VSCode-Portable
-          🚀 Executable: C:\Tools\VSCode-Portable\Code.exe
-          💾 Data Directory: C:\Tools\VSCode-Portable\data
-          🔗 Desktop Shortcut: VS Code Portable.lnk
+          Installation Directory: C:\Tools\VSCode-Portable
+          Executable: C:\Tools\VSCode-Portable\Code.exe
+          Data Directory: C:\Tools\VSCode-Portable\data
+          Desktop Shortcut: VS Code Portable.lnk
           
-          ▶️ To start VS Code: Double-click the desktop shortcut
-          ▶️ Or run from WSL: /mnt/c/Tools/VSCode-Portable/Code.exe
+          To start VS Code: Double-click the desktop shortcut
+          Or run from WSL: /mnt/c/Tools/VSCode-Portable/Code.exe
           
-          ✅ Portable mode: All settings and extensions stored in data folder
+          Portable mode: All settings and extensions stored in data folder

@@ -25,14 +25,14 @@ test_sites=("https://www.microsoft.com" "https://www.google.com" "https://yum.or
 working=0
 for site in "${test_sites[@]}"; do
     if timeout 5 curl -s "$site" >/dev/null 2>&1; then
-        echo "✅ $site - OK"
+        echo "[OK] $site - OK"
         working=$((working + 1))
     fi
 done
 
 # Skip if HTTPS already works
 if [[ $working -eq ${#test_sites[@]} ]]; then
-    echo "✅ HTTPS working - no certificates needed!"
+    echo "[OK] HTTPS working - no certificates needed!"
     exit 0
 fi
 
@@ -70,7 +70,7 @@ echo "- Re-testing HTTPS..."
 working=0
 for site in "${test_sites[@]}"; do
     if timeout 5 curl -s "$site" >/dev/null 2>&1; then
-        echo "✅ $site - OK"
+        echo "[OK] $site - OK"
         working=$((working + 1))
     fi
 done

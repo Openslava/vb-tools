@@ -18,7 +18,7 @@ export INSTALL_FILES_DIR="$ORACLE_BASE/install_files"
 
 # Skip if already installed
 if [ -d "$WLS_HOME" ]; then
-    echo "✅ WebLogic already installed"
+    echo "[OK] WebLogic already installed"
     exit 0
 fi
 
@@ -53,7 +53,7 @@ fi
 
 # Check if JDK is already installed
 if rpm -qa | grep -q "jdk.*1\.8\.0_461"; then
-    echo "✅ Oracle JDK 8u461 already installed"
+    echo "[OK] Oracle JDK 8u461 already installed"
 else
     echo "- Installing Oracle JDK 8u461..."
     # Capture both output and exit code
@@ -61,9 +61,9 @@ else
     rpm_exit_code=$?
     
     if echo "$rpm_output" | grep -q "is already installed"; then
-        echo "✅ Oracle JDK was already installed"
+        echo "[OK] Oracle JDK was already installed"
     elif [ $rpm_exit_code -eq 0 ]; then
-        echo "✅ Oracle JDK installed successfully"
+        echo "[OK] Oracle JDK installed successfully"
     else
         echo "[ERROR] Failed to install Oracle JDK RPM"
         echo "Error output: $rpm_output"
@@ -73,7 +73,7 @@ fi
 
 export JAVA_HOME=/usr/java/latest
 export PATH=$JAVA_HOME/bin:$PATH
-echo "✅ Java installed: $(java -version 2>&1 | head -1)"
+echo "[OK] Java installed: $(java -version 2>&1 | head -1)"
 
 # Install WebLogic
 echo "- Installing WebLogic..."
@@ -113,7 +113,7 @@ su - weblogic -c "export JAVA_HOME=$JAVA_HOME && \
 rm -rf "$TEMP_DIR"
 
 if [ -d "$WLS_HOME" ]; then
-    echo "✅ WebLogic installation completed!"
+    echo "[OK] WebLogic installation completed!"
 else
     echo "[ERROR] WebLogic installation failed"
     exit 1

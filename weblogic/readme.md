@@ -2,7 +2,7 @@
 
 Oracle WebLogic Server installation and domain management.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Download Oracle Files First
 
@@ -22,19 +22,19 @@ Oracle WebLogic Server installation and domain management.
 .\weblogic\00_quick_start.ps1 -domainName "production" -adminPassword "SecurePass123!" -adminPort 7002
 ```
 
-### Result ✅
+### Result [OK]
 
 - **WebLogic Console**: <http://localhost:7001/console>
 - **Username**: `admin`
 - **Password**: Generated/custom password from setup
 
-## 📁 Scripts
+## Scripts
 
 - **01_set_weblogic.sh** - WebLogic Server installation
 - **02_set_domain.sh** - Domain creation with secure passwords
 - **03_run_domain.sh** - Domain startup/management
 
-## 🔧 Manual Setup
+## - Manual Setup
 
 ```bash
 # Step-by-step

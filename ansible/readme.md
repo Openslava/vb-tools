@@ -2,7 +2,7 @@
 
 Ansible installation and configuration for WSL/Oracle Linux.
 
-## 🚀 Quick Start
+## Quick Start
 
 ```powershell
 # Complete Ansible setup (installs WSL if missing)
@@ -15,7 +15,7 @@ Ansible installation and configuration for WSL/Oracle Linux.
 .\00_quick_start.ps1 -forse
 ```
 
-## ✅ What Happens
+## [OK] What Happens
 
 1. **WSL Setup** - Ensures Oracle Linux availability
 2. **System Updates** - Packages + Python/pip installation
@@ -37,7 +37,7 @@ ansible-playbook site.yml
 ansible-galaxy collection install community.docker
 ```
 
-## 📁 Scripts
+## Scripts
 
 - **00_quick_start.ps1** - Complete automated setup
 - **01_set_ansible.sh** - Ansible installation/configuration

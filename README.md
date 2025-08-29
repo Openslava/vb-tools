@@ -2,7 +2,7 @@
 
 Automation tools for Windows development: WSL, WebLogic, Ansible.
 
-## 🚀 Quick Start
+## Quick Start
 
 ```powershell
 # Complete setup (WSL + WebLogic + Ansible)
@@ -14,7 +14,7 @@ Automation tools for Windows development: WSL, WebLogic, Ansible.
 .\weblogic\00_quick_start.ps1 # WebLogic
 ```
 
-## 📁 Components
+## Components
 
 - **[WSL](./wsl/readme.md)** - Windows Subsystem for Linux setup
 - **[WebLogic](./weblogic/readme.md)** - Oracle WebLogic automation  

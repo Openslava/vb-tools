@@ -38,13 +38,13 @@ if (-not ($installedDistros -contains $distroName) -or $force) {
     wsl -d $distroName --shutdown
     Start-Sleep 5
 } else {
-    Write-Host "✅ $distroName already installed"
+    Write-Host "[OK] $distroName already installed" -ForegroundColor Green
 }
 
 # Set as default
 if ($setdefault) {
     wsl --set-default $distroName
-    Write-Host "✅ Set $distroName as default"
+    Write-Host "[OK] Set $distroName as default" -ForegroundColor Green
 }
 
 # Convert all sh files in subfolders to Unix line endings using sed

@@ -2,7 +2,7 @@
 
 Simple playbooks for common tasks and Windows management.
 
-## 🔧 Core Playbooks
+## - Core Playbooks
 
 ### patch-systems.yml
 Updates all packages on target systems.

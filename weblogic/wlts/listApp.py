@@ -9,7 +9,7 @@ if len(sys.argv) < 4:
 username, host, port = sys.argv[1:4]
 password = getpass('WebLogic password: ')
 
-print(f"🔗 Connecting to {host}:{port}...")
+print(f"Connecting to {host}:{port}...")
 connect(username, password, f't3://{host}:{port}')
 
 domainRuntime()

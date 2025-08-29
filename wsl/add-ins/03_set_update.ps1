@@ -36,7 +36,7 @@ $tools = $toolList -split ',' | ForEach-Object { $_.Trim() }
 $missing = Test-Tools $distroName $tools
 
 if (-not $force -and $missing.Count -eq 0) {
-    Write-Host "✅ All tools installed - no updates needed! Use -force to reinstall" -ForegroundColor Green
+    Write-Host "[OK] All tools installed - no updates needed! Use -force to reinstall" -ForegroundColor Green
     exit 0
 }
 

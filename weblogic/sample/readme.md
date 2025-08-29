@@ -2,7 +2,7 @@
 
 Minimal Java servlet web application for Oracle WebLogic Server.
 
-## 📁 Structure
+## Structure
 
 - `src/main/java/com/example/HelloServlet.java` - Simple servlet
 - `src/main/webapp/WEB-INF/web.xml` - Deployment descriptor
@@ -17,7 +17,7 @@ mvn clean package
 
 Output: `target/sample.war`
 
-## 🚀 Deploy
+## Deploy
 
 ### Initial Deployment
 
