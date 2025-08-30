@@ -1,16 +1,17 @@
-# VB-Tools 
+# VB-Tools - V1.0
 
 Automation tools for Windows development: WSL, WebLogic, Ansible.
+
 
 ## Quick Start
 
 ```powershell
-# Complete setup (WSL + WebLogic + Ansible)
+# Complete setup (WSL + Ansible + WebLogic)
 .\00_quick_start.ps1
 
 # Individual components
-.\wsl\00_quick_start.ps1      # WSL only
-.\ansible\00_quick_start.ps1  # Ansible only
+.\wsl\00_quick_start.ps1      # WSL
+.\ansible\00_quick_start.ps1  # Ansible
 .\weblogic\00_quick_start.ps1 # WebLogic
 ```
 
@@ -24,16 +25,23 @@ NOTE: files are normalized in repo to LF line endings for consistency across pla
 
 ## Examples
 
-```powershell
-# Force password reset
-.\weblogic\00_quick_start.ps1 -forse
-```
-
 ```bash
 # Build sample app
 cd weblogic/sample && mvn clean package
 ```
 
-## - License
+## License
 
 MIT License - see [LICENSE](LICENSE)
+
+## Contributing
+
+We welcome contributions to VB-Tools! Please follow these steps:
+
+1. **Fork the Repository**: Create your own fork of the repository on GitHub.
+2. **Create a Branch**: Create a new branch for your feature or bug fix.
+3. **Make Changes**: Make your changes in the new branch.
+4. **Test Your Changes**: Ensure that your changes work as expected.
+5. **Submit a Pull Request**: Submit a pull request to the main repository.
+
+Thank you for your contributions!
