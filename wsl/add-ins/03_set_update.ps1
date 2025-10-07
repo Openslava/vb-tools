@@ -40,6 +40,26 @@ if (-not $force -and $missing.Count -eq 0) {
     exit 0
 }
 
+
+# Enable systemd and cron inside the distro using 07_set_system.sh
+try {
+    $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+    $sysScriptWin = Join-Path $scriptDir '07_set_system.sh'
+    if (-not (Test-Path $sysScriptWin)) {
+        $sysScriptWin = Join-Path (Join-Path $scriptDir '.') '07_set_system.sh'
+    }
+    if (Test-Path $sysScriptWin) {
+        $sysScriptWsl = (wsl -d $distroName -e wslpath "$sysScriptWin").Trim()
+        Write-Host "- Configuring systemd and cron (07_set_system.sh)" -ForegroundColor Cyan
+        wsl -d $distroName -u root -- bash "$sysScriptWsl"
+    } else {
+        Write-Host "[WARN] 07_set_system.sh not found next to this script; skipping systemd/cron setup" -ForegroundColor Yellow
+    }
+} catch {
+    Write-Host "[WARN] systemd/cron setup failed: $_" -ForegroundColor Yellow
+}
+
+# Update and install tools  
 try {
     $isUbuntu = $distroName -match "Ubuntu"
     $updateCmd = if ($isUbuntu) { "apt-get update -y" } else { "yum update -y" }
@@ -74,24 +94,6 @@ try {
         Write-Host "[SUCCESS] All tools installed successfully!" -ForegroundColor Green
     } else {
         Write-Host "[WARN] Some tools still missing: $($stillMissing -join ', ')" -ForegroundColor Yellow
-    }
-
-    # Enable systemd and cron inside the distro using 07_set_system.sh
-    try {
-        $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
-        $sysScriptWin = Join-Path $scriptDir '07_set_system.sh'
-        if (-not (Test-Path $sysScriptWin)) {
-            $sysScriptWin = Join-Path (Join-Path $scriptDir '.') '07_set_system.sh'
-        }
-        if (Test-Path $sysScriptWin) {
-            $sysScriptWsl = (wsl -d $distroName -e wslpath "$sysScriptWin").Trim()
-            Write-Host "- Configuring systemd and cron (07_set_system.sh)" -ForegroundColor Cyan
-            wsl -d $distroName -u root -- bash "$sysScriptWsl"
-        } else {
-            Write-Host "[WARN] 07_set_system.sh not found next to this script; skipping systemd/cron setup" -ForegroundColor Yellow
-        }
-    } catch {
-        Write-Host "[WARN] systemd/cron setup failed: $_" -ForegroundColor Yellow
     }
 } catch {
     Write-Error "[ERROR] Installation failed: $_"
