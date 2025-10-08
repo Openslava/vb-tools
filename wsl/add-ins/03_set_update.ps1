@@ -61,8 +61,26 @@ try {
 
 # Update and install tools  
 try {
+    $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+    $sysScriptWin = Join-Path $scriptDir '07_set_system.sh'
+    if (-not (Test-Path $sysScriptWin)) {
+        $sysScriptWin = Join-Path (Join-Path $scriptDir '.') '07_set_system.sh'
+    }
+    if (Test-Path $sysScriptWin) {
+        $sysScriptWsl = (wsl -d $distroName -e wslpath "$sysScriptWin").Trim()
+        Write-Host "- Configuring systemd and cron (07_set_system.sh)" -ForegroundColor Cyan
+        wsl -d $distroName -u root -- bash "$sysScriptWsl"
+    } else {
+        Write-Host "[WARN] 07_set_system.sh not found next to this script; skipping systemd/cron setup" -ForegroundColor Yellow
+    }
+} catch {
+    Write-Host "[WARN] systemd/cron setup failed: $_" -ForegroundColor Yellow
+}
+
+# Update and install tools  
+try {
+    # [string]$toolList = "maven,git,curl,wget,unzip,nano,vim",    
     $isUbuntu = $distroName -match "Ubuntu"
-    $updateCmd = if ($isUbuntu) { "apt-get update -y" } else { "yum update -y" }
     $installCmd = if ($isUbuntu) { "apt-get install -y" } else { "yum install -y" }
     
     # Map special packages
@@ -77,17 +95,7 @@ try {
     
     Write-Host "- Installing: $packageList"
 
-    wsl -d $distroName -u root -- bash -c "set -e; $updateCmd; $installCmd $packageList"
-
-    # if failed then add "user_agent-curl/7.61.1" to /etc/yum.conf and try again
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "[WARN] Installation failed, trying workaround..." -ForegroundColor Yellow
-        # add mentioned line only if not present and only for yum
-        if ($updateCmd -eq "yum update -y") {
-            wsl -d $distroName -u root -- bash -c "grep -qxF 'user_agent=curl/7.61.1' /etc/yum.conf || echo 'user_agent=curl/7.61.1' >> /etc/yum.conf"
-        }
-        wsl -d $distroName -u root -- bash -c "set -e; $updateCmd; $installCmd $packageList"
-    }
+    wsl -d $distroName -u root -- bash -c "set -e; $installCmd $packageList"
 
     $stillMissing = Test-Tools $distroName $tools
     if ($stillMissing.Count -eq 0) {
