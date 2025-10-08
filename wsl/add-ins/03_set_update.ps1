@@ -61,8 +61,8 @@ try {
 
 # Update and install tools  
 try {
+    # [string]$toolList = "maven,git,curl,wget,unzip,nano,vim",    
     $isUbuntu = $distroName -match "Ubuntu"
-    $updateCmd = if ($isUbuntu) { "apt-get update -y" } else { "yum update -y" }
     $installCmd = if ($isUbuntu) { "apt-get install -y" } else { "yum install -y" }
     
     # Map special packages
@@ -77,17 +77,7 @@ try {
     
     Write-Host "- Installing: $packageList"
 
-    wsl -d $distroName -u root -- bash -c "set -e; $updateCmd; $installCmd $packageList"
-
-    # if failed then add "user_agent-curl/7.61.1" to /etc/yum.conf and try again
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "[WARN] Installation failed, trying workaround..." -ForegroundColor Yellow
-        # add mentioned line only if not present and only for yum
-        if ($updateCmd -eq "yum update -y") {
-            wsl -d $distroName -u root -- bash -c "grep -qxF 'user_agent=curl/7.61.1' /etc/yum.conf || echo 'user_agent=curl/7.61.1' >> /etc/yum.conf"
-        }
-        wsl -d $distroName -u root -- bash -c "set -e; $updateCmd; $installCmd $packageList"
-    }
+    wsl -d $distroName -u root -- bash -c "set -e; $installCmd $packageList"
 
     $stillMissing = Test-Tools $distroName $tools
     if ($stillMissing.Count -eq 0) {

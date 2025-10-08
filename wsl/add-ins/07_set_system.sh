@@ -26,20 +26,31 @@ else
 fi
 msg "[OK] Ensured systemd=true in $conf"
 
-# 2) Install cron (cronie on RPM, cron on Debian/Ubuntu)
+# 2) Update package index (with yum user_agent workaround)
+PKGMGR="$(command -v apt-get || command -v yum || command -v dnf || true)"
+if [ -n "$PKGMGR" ]; then
+    if ! "$PKGMGR" -y update; then
+        # Workaround for certain yum environments requiring a user_agent
+        if [ "$(basename "$PKGMGR")" = "yum" ]; then
+            grep -qxF 'user_agent=curl/7.61.1' /etc/yum.conf || echo 'user_agent=curl/7.61.1' >> /etc/yum.conf
+            "$PKGMGR" -y update || true
+        fi
+    fi
+fi
+
+# 3) Install cron (cronie on RPM, cron on Debian/Ubuntu)
 svc="cron"
 if command -v apt-get >/dev/null 2>&1; then
-  apt-get update -y || true
-  apt-get install -y cron
+  # apt-get index already updated above
+  "$PKGMGR" install -y cron
 else
-  PKGMGR="$(command -v dnf || command -v yum || true)"
   [ -n "$PKGMGR" ] || die "Unsupported package manager. Install cron manually."
   "$PKGMGR" install -y cronie
   svc="crond"
 fi
 msg "[OK] Installed service: $svc"
 
-# 3) Start/enable cron
+# 4) Start/enable cron
 if [ -f /proc/1/comm ] && grep -qi systemd /proc/1/comm; then
   systemctl enable --now "$svc" || systemctl restart "$svc" || true
   systemctl is-active --quiet "$svc" && msg "[OK] $svc is active" || msg "[WARN] $svc not active yet"
